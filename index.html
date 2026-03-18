@@ -174,6 +174,21 @@
                 <div class="item"><div class="item-text" id="career"></div></div>
             </div>
             
+            <div class="section">
+                <div class="section-title">⚠️ 软肋详解</div>
+                <div class="item"><div class="item-text" id="weaknessDetail" style="line-height:1.8;"></div></div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">💡 提升建议</div>
+                <div class="item"><div class="item-text" id="improvement" style="line-height:1.8;color:#667eea;"></div></div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">📖 名人故事</div>
+                <div class="item"><div class="item-text" id="celebrityStory" style="line-height:1.8;"></div></div>
+            </div>
+            
             <div class="btn-group">
                 <button class="btn-share" onclick="generateAndShare()">📸 生成海报分享</button>
                 <button class="btn-retake" onclick="retakeTest()">🔄 重测</button>
@@ -183,6 +198,7 @@
         <canvas id="posterCanvas" class="poster-canvas"></canvas>
     </div>
 
+    <script src="styles-data.js"></script>
     <script>
         var questions = [
             {text:"在供应商选择时，你更倾向于：",options:[{label:'A',text:'详细分析所有数据，对比多家供应商的优劣势',score:'A'},{label:'B',text:'相信自己的行业经验和直觉判断',score:'I'},{label:'C',text:'参考同行推荐和口碑评价',score:'I'},{label:'D',text:'建立评估模型，量化各项指标后决策',score:'A'}]},
@@ -215,24 +231,7 @@
             {text:"结束谈判时，你会：",options:[{label:'A',text:'明确总结达成的共识和下一步',score:'D'},{label:'B',text:'感谢对方，保持良好关系',score:'P'},{label:'C',text:'确认关键条款，避免误解',score:'D'},{label:'D',text:'表达合作期待，展望未来',score:'P'}]}
         ];
 
-        var styles = {
-            ARCD: {animal:'🦉',name:'战略架构师',role:'战略策划者',saving:'15-25%',rarity:'约 5%',fortune:'本周宜制定长期战略，适合分析供应商成本结构，找出隐藏利润空间',money:'年省潜力 15-25%，擅长从数据中发现降本机会',partner:'ARTD(关系协调者)，你出战略他铺路，天作之合',tags:['人形审计仪','合同找茬专家','老板最放心的守门员'],career:'供应商准入审核、成本结构分析、战略采购规划',celebrity:'诸葛亮',celebrityDesc:'谋定后动，运筹帷幄',weakness:'容易被"真诚"的供应商打动，过度分析导致错失良机',quotes:['这个价格，你自己信吗？','我需要再对比一下','长期合作，但要双赢'],beatPercent:87,rank:3247},
-            ARCP: {animal:'🐬',name:'关系建筑师',role:'信任建立者',saving:'10-18%',rarity:'约 8%',fortune:'本周宜维护核心供应商关系，一次深度沟通胜过十次讨价还价',money:'年省潜力 10-18%，关系溢价是你的隐形武器',partner:'ARCD(战略架构师)，你维系关系他提供弹药',tags:['供应商知己','人情账户管理员','长期主义代言人'],career:'战略供应商管理、联合开发项目、长期协议谈判',celebrity:'刘备',celebrityDesc:'仁义服人，得人心者得天下',weakness:'太讲人情，不好意思砍价',quotes:['咱们老朋友了，给个实在价','这次帮帮忙，下次一定优先','关系比价格重要'],beatPercent:72,rank:8521},
-            ARBD: {animal:'🐢',name:'谨慎守护者',role:'风险管控者',saving:'8-15%',rarity:'约 7%',fortune:'本周宜审查合同条款，细节里藏着魔鬼也藏着钱',money:'年省潜力 8-15%，避免一次大坑胜过十次小省',partner:'ATBD(果断执行者)，你踩刹车他踩油门',tags:['条款显微镜','最坏情况预演师','合规守门员'],career:'合同审核、风险评估、供应商资质认证',celebrity:'司马懿',celebrityDesc:'隐忍待机，一击必中',weakness:'过度谨慎，错失最佳时机',quotes:['这个条款还需要再斟酌','最坏的情况是什么？','先小人后君子'],beatPercent:65,rank:12043},
-            ARBP: {animal:'🐑',name:'温和协调者',role:'共识促成者',saving:'5-12%',rarity:'约 10%',fortune:'本周宜寻找共同利益点，和气生财是真的',money:'年省潜力 5-12%，双赢比零和更可持续',partner:'ITBD(快速决策者)，你缓和气氛他推进进度',tags:['和事佬专业户','情绪稳定器','双赢设计师'],career:'跨部门协调、供应商纠纷调解、联合降本项目管理',celebrity:'鲁肃',celebrityDesc:'忠厚长者，调和鼎鼐',weakness:'太容易妥协，立场不够坚定',quotes:['大家都不容易','找个折中方案','和气生财'],beatPercent:58,rank:18762},
-            ATCD: {animal:'🐜',name:'效率优化师',role:'流程专家',saving:'12-20%',rarity:'约 12%',fortune:'本周宜优化采购流程，效率提升就是成本下降',money:'年省潜力 12-20%，标准化是你的印钞机',partner:'ARCP(关系建筑师)，你管流程他管人情',tags:['SOP 狂魔','效率计算器','流程改造师'],career:'采购流程优化、标准化建设、数字化系统实施',celebrity:'商鞅',celebrityDesc:'变法图强，制度至上',weakness:'太迷信流程，缺乏灵活性',quotes:['按流程走','这个有 SOP 吗？','效率就是成本'],beatPercent:79,rank:6234},
-            ATCP: {animal:'🦎',name:'数据驱动者',role:'量化分析师',saving:'10-18%',rarity:'约 9%',fortune:'本周宜深挖历史数据，数字会告诉你该砍哪里',money:'年省潜力 10-18%，每一个小数点都是钱',partner:'IRBP(魅力影响者)，你出数据他出嘴',tags:['Excel 魔法师','KPI 猎人','仪表盘控'],career:'采购数据分析、支出分析、成本建模',celebrity:'韩信',celebrityDesc:'多多益善，数据为王',weakness:'只看数字，忽视人情世故',quotes:['数据不会说谎','给我看历史走势','算笔账给你听'],beatPercent:75,rank:9871},
-            ATBD: {animal:'🦅',name:'果断执行者',role:'结果导向者',saving:'15-22%',rarity:'约 8%',fortune:'本周宜速战速决，犹豫就会败北',money:'年省潜力 15-22%，时间就是金钱在你身上是真的',partner:'ARBD(谨慎守护者)，你冲锋他断后',tags:['deadline 杀手','说一不二','目标粉碎机'],career:'紧急采购项目、竞标谈判、价格战应对',celebrity:'曹操',celebrityDesc:'宁我负人，勿人负我',weakness:'太强势，容易得罪人',quotes:['今天必须定','就这个价','别废话'],beatPercent:82,rank:4521},
-            ATBP: {animal:'🐴',name:'团队推动者',role:'项目管理者',saving:'10-16%',rarity:'约 11%',fortune:'本周宜召开供应商大会，集体力量大于个人',money:'年省潜力 10-16%，团队作战能谈下更大折扣',partner:'ARCD(战略架构师)，你带团队他定方向',tags:['进度条管家','会议组织者','任务分配大师'],career:'采购项目统筹、跨部门协作、供应商大会组织',celebrity:'萧何',celebrityDesc:'镇国家，抚百姓，给馈饷',weakness:'太依赖团队，个人决断力弱',quotes:['大家商量一下','开个会对齐','分工协作'],beatPercent:68,rank:11234},
-            IRCD: {animal:'🦊',name:'创新探索者',role:'变革推动者',saving:'12-20%',rarity:'约 6%',fortune:'本周宜尝试新供应商，老树不一定开新花',money:'年省潜力 12-20%，创新是最大降本空间',partner:'ATCD(效率优化师)，你创新他落地',tags:['破局者','新物种猎手','传统挑战者'],career:'新供应商开发、替代方案研究、创新采购模式',celebrity:'王安石',celebrityDesc:'天变不足畏，祖宗不足法',weakness:'太激进，风险意识不足',quotes:['试试新的','为什么不能改？','创新才有机会'],beatPercent:71,rank:7823},
-            IRCP: {animal:'🐕',name:'社交联结者',role:'人脉拓展者',saving:'8-15%',rarity:'约 10%',fortune:'本周宜参加行业聚会，饭局上能听到真话',money:'年省潜力 8-15%，人脉就是你的情报网',partner:'ATCP(数据驱动者)，你搞关系他验证',tags:['行业百事通','饭局之王','消息灵通人士'],career:'供应商关系拓展、行业资源整合、信息收集分析',celebrity:'孟尝君',celebrityDesc:'门客三千，广结善缘',weakness:'太依赖关系，专业能力不足',quotes:['我认识一个人','饭桌上聊','圈内人都知道'],beatPercent:63,rank:15432},
-            IRBD: {animal:'🦁',name:'风险投资者',role:'机会赌手',saving:'15-30%',rarity:'约 4%',fortune:'本周宜押注新供应商，富贵险中求',money:'年省潜力 15-30%，敢赌才能赢大的',partner:'ARBD(谨慎守护者)，你冒险他风控',tags:['赌桌高手','all in 先生','要么赢要么输'],career:'战略投资型采购、新市场开拓、颠覆性供应商引入',celebrity:'项羽',celebrityDesc:'破釜沉舟，背水一战',weakness:'赌性太重，大起大落',quotes:['梭哈','搏一搏','富贵险中求'],beatPercent:91,rank:1823},
-            IRBP: {animal:'🦜',name:'魅力影响者',role:'说服艺术家',saving:'10-18%',rarity:'约 7%',fortune:'本周宜面对面谈判，你的气场能压价',money:'年省潜力 10-18%，会说话就是会赚钱',partner:'ATCP(数据驱动者)，你输出他背书',tags:['谈判桌明星','嘴炮王者','气场两米八'],career:'核心谈判代表、高层对接、关键合同签署',celebrity:'苏秦',celebrityDesc:'合纵连横，三寸不烂之舌',weakness:'说得多做得少，落地能力弱',quotes:['你听我说','相信我','包在我身上'],beatPercent:77,rank:5672},
-            ITCD: {animal:'🦈',name:'市场洞察者',role:'趋势分析师',saving:'12-22%',rarity:'约 6%',fortune:'本周宜研究市场趋势，风口来了猪都能飞',money:'年省潜力 12-22%，预判正确能省大钱',partner:'ARCP(关系建筑师)，你看趋势他稳关系',tags:['行情预言家','周期把握者','抄底高手'],career:'市场价格预测、大宗商品采购、战略储备决策',celebrity:'范蠡',celebrityDesc:'旱则资舟，水则资车',weakness:'过度分析，行动迟缓',quotes:['趋势不对','再等等','时机未到'],beatPercent:84,rank:3892},
-            ITCP: {animal:'🐆',name:'机会捕捉者',role:'敏捷反应者',saving:'10-20%',rarity:'约 7%',fortune:'本周宜关注突发机会，手慢无是真的',money:'年省潜力 10-20%，机会窗口转瞬即逝',partner:'ARCD(战略架构师)，你抓机会他把方向',tags:['机会雷达','闪电侠','捡漏王'],career:'临时采购需求、市场波动应对、紧急议价',celebrity:'霍去病',celebrityDesc:'封狼居胥，闪电战专家',weakness:'太急躁，缺乏长远规划',quotes:['先拿下再说','手慢无','机会不等人'],beatPercent:73,rank:8234},
-            ITBD: {animal:'🐲',name:'快速决策者',role:'直觉行动派',saving:'12-18%',rarity:'约 5%',fortune:'本周宜相信第一直觉，想太多会错过',money:'年省潜力 12-18%，果断比完美更重要',partner:'ARBP(温和协调者)，你决策他善后',tags:['拍板侠','不纠结星人','先干再说'],career:'快速采购项目、应急响应、临时决策',celebrity:'李云龙',celebrityDesc:'狭路相逢勇者胜',weakness:'太依赖直觉，缺乏数据支撑',quotes:['就这么定了','别想太多','先干再说'],beatPercent:80,rank:4123},
-            ITBP: {animal:'🐙',name:'灵活适应者',role:'变通专家',saving:'8-15%',rarity:'约 9%',fortune:'本周宜随机应变，计划赶不上变化',money:'年省潜力 8-15%，灵活就是省钱',partner:'ATCD(效率优化师)，你变通他稳定',tags:['墙头草高手','见招拆招','没有固定套路'],career:'多变环境采购、多供应商管理、应急方案制定',celebrity:'韦小宝',celebrityDesc:'见风使舵，左右逢源',weakness:'太圆滑，缺乏原则',quotes:['看情况','都可以','再说吧'],beatPercent:61,rank:16782}
-        };
+
 
         var currentIndex = 0;
         var answers = [];
@@ -324,7 +323,10 @@
             document.getElementById('partner').textContent = style.partner;
             document.getElementById('career').textContent = style.career;
             document.getElementById('weakness').textContent = style.weakness;
+            document.getElementById('weaknessDetail').textContent = style.weaknessDetail;
+            document.getElementById('improvement').textContent = style.improvement;
             document.getElementById('celebrity').textContent = style.celebrity + ' · ' + style.celebrityDesc;
+            document.getElementById('celebrityStory').textContent = style.celebrityStory;
             document.getElementById('beatPercent').innerHTML = '<strong style="font-size:18px;color:#667eea;">🏆 你击败了 ' + style.beatPercent + '% 的采购同行</strong>';
             document.getElementById('rank').textContent = '👤 全国第 ' + style.rank.toLocaleString() + ' 位' + style.name;
             
@@ -340,9 +342,10 @@
             var quotesContainer = document.getElementById('quotes');
             quotesContainer.innerHTML = '';
             for (var i = 0; i < style.quotes.length; i++) {
+                var quote = style.quotes[i];
                 var div = document.createElement('div');
-                div.style.cssText = 'padding:8px 12px;margin:6px 0;background:#fff;border-radius:6px;border-left:3px solid #667eea;font-size:14px;color:#555;';
-                div.textContent = '"' + style.quotes[i] + '"';
+                div.style.cssText = 'padding:10px 12px;margin:8px 0;background:#fff;border-radius:8px;border-left:4px solid #667eea;';
+                div.innerHTML = '<div style="font-size:14px;color:#333;margin-bottom:4px;">"' + quote.text + '"</div><div style="font-size:12px;color:#999;">📍 ' + quote.scene + '</div>';
                 quotesContainer.appendChild(div);
             }
             
