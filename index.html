@@ -44,8 +44,8 @@
         .progress { background: #e0e0e0; border-radius: 10px; height: 6px; margin-bottom: 15px; overflow: hidden; }
         .progress-bar { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 3.57%; transition: width 0.3s; }
         .progress-text { text-align: center; color: #666; font-size: 13px; margin-bottom: 15px; }
-        .milestone-feedback { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-weight: 600; font-size: 14px; animation: slideIn 0.5s; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .milestone-feedback { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 16px; border-radius: 20px; margin: 10px auto; text-align: center; font-weight: 600; font-size: 13px; display: inline-block; animation: fadeInOut 3s; position: relative; z-index: 100; }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(-10px); } 20% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
         .question-scene { font-size: 13px; color: #667eea; background: #f0f4ff; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-weight: 600; }
         .question { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 20px; line-height: 1.4; }
         .question strong { font-weight: 700; color: #667eea; }
@@ -179,8 +179,7 @@
             <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
             <div class="progress-text" id="progressText">1 / 28</div>
             <div id="milestoneFeedback" class="milestone-feedback hidden"></div>
-            <div class="question-scene" id="questionScene">场景描述</div>
-            <div class="question" id="questionText">加载中...</div>
+            <div class="question" id="questionText" style="margin-top:5px;">加载中...</div>
             <div class="options" id="optionsContainer"></div>
             <div class="nav-buttons">
                 <button class="btn btn-prev" id="prevBtn" onclick="prevQuestion()">← 上一题</button>
@@ -927,7 +926,6 @@
 
         function renderQuestion() {
             var q = questions[currentIndex];
-            document.getElementById('questionScene').textContent = q.scene;
             document.getElementById('questionText').innerHTML = q.q;
             var container = document.getElementById('optionsContainer');
             container.innerHTML = '';
@@ -1009,8 +1007,7 @@
             feedbackEl.classList.remove('hidden');
             setTimeout(function() {
                 feedbackEl.classList.add('hidden');
-                if (currentIndex < 27) nextQuestion();
-            }, 2500); // 延长到 2.5 秒
+            }, 3000); // 3 秒自动消失
         }
 
         function prevQuestion() {
@@ -1278,9 +1275,9 @@
             dimensions[6].score = Math.min(100, (scores.D / 7) * 100);
             dimensions[7].score = Math.min(100, (scores.P / 7) * 100);
             
-            // 绘制背景网格
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 1;
+            // 绘制背景网格（更清晰）
+            ctx.strokeStyle = '#d0d0d0';
+            ctx.lineWidth = 1.5;
             for (var level = 1; level <= 4; level++) {
                 var r = (radius / 4) * level;
                 ctx.beginPath();
@@ -1295,7 +1292,7 @@
                 ctx.stroke();
             }
             
-            // 绘制辐射线
+            // 绘制辐射线（更明显）
             for (var i = 0; i < 8; i++) {
                 var angle = (Math.PI * 2 / 8) * i - Math.PI / 2;
                 var x = centerX + Math.cos(angle) * radius;
@@ -1303,11 +1300,12 @@
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.lineTo(x, y);
-                ctx.strokeStyle = '#e0e0e0';
+                ctx.strokeStyle = '#c0c0c0';
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
             }
             
-            // 绘制数据多边形
+            // 绘制数据多边形（更鲜艳）
             ctx.beginPath();
             for (var i = 0; i < 8; i++) {
                 var angle = (Math.PI * 2 / 8) * i - Math.PI / 2;
@@ -1318,20 +1316,20 @@
                 else ctx.lineTo(x, y);
             }
             ctx.closePath();
-            ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+            ctx.fillStyle = 'rgba(102, 126, 234, 0.5)';
             ctx.fill();
             ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.stroke();
             
             // 绘制维度标签
             for (var i = 0; i < 8; i++) {
                 var angle = (Math.PI * 2 / 8) * i - Math.PI / 2;
-                var r = radius + 15;
+                var r = radius + 20;
                 var x = centerX + Math.cos(angle) * r;
                 var y = centerY + Math.sin(angle) * r;
-                ctx.fillStyle = '#666';
-                ctx.font = '10px sans-serif';
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(dimensions[i].name, x, y);
