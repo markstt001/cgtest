@@ -6,23 +6,33 @@ function generatePersonalizedInterpretation(scores, code) {
         decision: '',    // 决策风格 (A vs I)
         relation: '',    // 关系导向 (R vs T)
         risk: '',        // 风险态度 (C vs B)
-        comm: ''         // 沟通方式 (D vs P)
+        comm: '',        // 沟通方式 (D vs P)
+        decisionLabel: '',
+        relationLabel: '',
+        riskLabel: '',
+        commLabel: ''
     };
     
     // === 1. 决策风格（分析型 A vs 直觉型 I）===
     var totalAI = scores.A + scores.I;
     if (totalAI > 0) {
         var aPercent = Math.round((scores.A / totalAI) * 100);
+        var iPercent = 100 - aPercent;
         if (aPercent >= 80) {
-            interpretation.decision = '🔍 你是极致的分析型，做决定前一定要把所有数据都看透。这是你的超能力，但有时也会成为负担。记住：完美是完成的敌人。';
+            interpretation.decisionLabel = '分析型 ' + aPercent + '%';
+            interpretation.decision = '你是极致的分析型，做决定前一定要把所有数据都看透。这是你的超能力，但有时也会成为负担。记住：完美是完成的敌人。';
         } else if (aPercent >= 60) {
-            interpretation.decision = '📊 你偏向分析型，习惯用数据说话。但你也愿意在适当的时候相信直觉，这种平衡很难得。';
+            interpretation.decisionLabel = '偏分析 ' + aPercent + '%';
+            interpretation.decision = '你习惯用数据说话，但也愿意在适当的时候相信直觉，这种平衡很难得。';
         } else if (aPercent >= 40) {
-            interpretation.decision = '⚖️ 你在分析和直觉之间找到了很好的平衡。既能看透数据，也敢相信第一感觉，这是成熟决策者的标志。';
+            interpretation.decisionLabel = '平衡型';
+            interpretation.decision = '你在分析和直觉之间找到了很好的平衡。既能看透数据，也敢相信第一感觉，这是成熟决策者的标志。';
         } else if (aPercent >= 20) {
-            interpretation.decision = '🎯 你偏向直觉型，做决定快准狠。这是天赋，但也要记得偶尔停下来看看数据，避免冲动决策。';
+            interpretation.decisionLabel = '偏直觉 ' + iPercent + '%';
+            interpretation.decision = '你做决定快准狠，这是天赋，但也要记得偶尔停下来看看数据，避免冲动决策。';
         } else {
-            interpretation.decision = '⚡ 你是纯粹的直觉型，相信第一感觉胜过千军万马的数据。很多伟大的决策都来自这样的直觉，但要小心过度自信。';
+            interpretation.decisionLabel = '直觉型 ' + iPercent + '%';
+            interpretation.decision = '你相信第一感觉胜过千军万马的数据。很多伟大的决策都来自这样的直觉，但要小心过度自信。';
         }
     }
     
@@ -30,16 +40,22 @@ function generatePersonalizedInterpretation(scores, code) {
     var totalRT = scores.R + scores.T;
     if (totalRT > 0) {
         var rPercent = Math.round((scores.R / totalRT) * 100);
+        var tPercent = 100 - rPercent;
         if (rPercent >= 80) {
-            interpretation.relation = '🤝 你是天生的关系型，把人看得比事重要。这是你的超能力，但也要小心别被人情绑架，该坚持的底线一定要坚持。';
+            interpretation.relationLabel = '关系型 ' + rPercent + '%';
+            interpretation.relation = '你把人看得比事重要，这是你的超能力，但也要小心别被人情绑架，该坚持的底线一定要坚持。';
         } else if (rPercent >= 60) {
-            interpretation.relation = '💝 你重视关系，但也知道什么时候该坚持原则。这种平衡让你既有人情味，又有底线。';
+            interpretation.relationLabel = '偏关系 ' + rPercent + '%';
+            interpretation.relation = '你重视关系，但也知道什么时候该坚持原则。这种平衡让你既有人情味，又有底线。';
         } else if (rPercent >= 40) {
-            interpretation.relation = '🎭 你在关系和任务之间找到了平衡点。既能维护关系，也能完成任务，这是职场中最稀缺的能力。';
+            interpretation.relationLabel = '平衡型';
+            interpretation.relation = '你在关系和任务之间找到了平衡点。既能维护关系，也能完成任务，这是职场中最稀缺的能力。';
         } else if (rPercent >= 20) {
-            interpretation.relation = '📌 你偏向任务型，结果导向。这让你高效，但也要记得偶尔关心一下"人"的感受，关系也是生产力。';
+            interpretation.relationLabel = '偏任务 ' + tPercent + '%';
+            interpretation.relation = '你结果导向，这让你高效，但也要记得偶尔关心一下"人"的感受，关系也是生产力。';
         } else {
-            interpretation.relation = '🎯 你是纯粹的任务型，目标明确，执行力强。这是你的优势，但有时候，关系好了，事情会更好。';
+            interpretation.relationLabel = '任务型 ' + tPercent + '%';
+            interpretation.relation = '你目标明确，执行力强。这是你的优势，但有时候，关系好了，事情会更好。';
         }
     }
     
@@ -47,16 +63,22 @@ function generatePersonalizedInterpretation(scores, code) {
     var totalCB = scores.C + scores.B;
     if (totalCB > 0) {
         var cPercent = Math.round((scores.C / totalCB) * 100);
+        var bPercent = 100 - cPercent;
         if (cPercent >= 80) {
-            interpretation.risk = '🛡️ 你是极致的谨慎型，永远做最坏的打算。这让你避免了很多坑，但也可能错失一些机会。有时候，最大的风险是不冒险。';
+            interpretation.riskLabel = '谨慎型 ' + cPercent + '%';
+            interpretation.risk = '你永远做最坏的打算。这让你避免了很多坑，但也可能错失一些机会。有时候，最大的风险是不冒险。';
         } else if (cPercent >= 60) {
-            interpretation.risk = '⚠️ 你偏向谨慎，但也愿意在可控范围内冒险。这是成熟的标志——既不鲁莽，也不保守。';
+            interpretation.riskLabel = '偏谨慎 ' + cPercent + '%';
+            interpretation.risk = '你偏向谨慎，但也愿意在可控范围内冒险。这是成熟的标志——既不鲁莽，也不保守。';
         } else if (cPercent >= 40) {
-            interpretation.risk = '🎲 你在谨慎和冒险之间找到了平衡。既不盲目冲动，也不畏首畏尾，这是成功者的特质。';
+            interpretation.riskLabel = '平衡型';
+            interpretation.risk = '你在谨慎和冒险之间找到了平衡。既不盲目冲动，也不畏首畏尾，这是成功者的特质。';
         } else if (cPercent >= 20) {
-            interpretation.risk = '🚀 你偏向冒险型，愿意为机会承担风险。这是企业家的特质，但也要记得做好风险控制。';
+            interpretation.riskLabel = '偏冒险 ' + bPercent + '%';
+            interpretation.risk = '你愿意为机会承担风险。这是企业家的特质，但也要记得做好风险控制。';
         } else {
-            interpretation.risk = '🔥 你是纯粹的冒险型，敢于 All in。很多大机会都是这样抓住的，但也要记住：活下来才有未来。';
+            interpretation.riskLabel = '冒险型 ' + bPercent + '%';
+            interpretation.risk = '你敢于 All in。很多大机会都是这样抓住的，但也要记住：活下来才有未来。';
         }
     }
     
@@ -64,16 +86,22 @@ function generatePersonalizedInterpretation(scores, code) {
     var totalDP = scores.D + scores.P;
     if (totalDP > 0) {
         var dPercent = Math.round((scores.D / totalDP) * 100);
+        var pPercent = 100 - dPercent;
         if (dPercent >= 80) {
-            interpretation.comm = '💬 你是直接的沟通者，喜欢有话直说。这让你高效，但有时也要注意方式方法，避免无意中得罪人。';
+            interpretation.commLabel = '直接型 ' + dPercent + '%';
+            interpretation.comm = '你喜欢有话直说。这让你高效，但有时也要注意方式方法，避免无意中得罪人。';
         } else if (dPercent >= 60) {
-            interpretation.comm = '📢 你偏向直接，但也懂得委婉。这种沟通方式既高效又不得罪人，是职场中的艺术。';
+            interpretation.commLabel = '偏直接 ' + dPercent + '%';
+            interpretation.comm = '你偏向直接，但也懂得委婉。这种沟通方式既高效又不得罪人，是职场中的艺术。';
         } else if (dPercent >= 40) {
-            interpretation.comm = '🎪 你在直接和说服之间找到了平衡。既能表达清楚，也能让人接受，这是领导者的沟通方式。';
+            interpretation.commLabel = '平衡型';
+            interpretation.comm = '你在直接和说服之间找到了平衡。既能表达清楚，也能让人接受，这是领导者的沟通方式。';
         } else if (dPercent >= 20) {
-            interpretation.comm = '✨ 你偏向说服型，擅长用影响力推动事情。这是天生的领导者特质，但也要记得有时候直接一点更高效。';
+            interpretation.commLabel = '偏说服 ' + pPercent + '%';
+            interpretation.comm = '你擅长用影响力推动事情。这是天生的领导者特质，但也要记得有时候直接一点更高效。';
         } else {
-            interpretation.comm = '🌟 你是纯粹的说服型，靠魅力和影响力说话。这是天生的领导者，但也要记住：真诚比技巧更重要。';
+            interpretation.commLabel = '说服型 ' + pPercent + '%';
+            interpretation.comm = '你靠魅力和影响力说话。这是天生的领导者，但也要记住：真诚比技巧更重要。';
         }
     }
     

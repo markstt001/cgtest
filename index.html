@@ -1193,10 +1193,22 @@
             if (typeof generatePersonalizedInterpretation !== 'undefined') {
                 var interpretation = generatePersonalizedInterpretation(dimensionScores, code);
                 var interpHtml = '<div style="font-size:13px;line-height:1.8;">' +
-                    '<div style="margin-bottom:10px;"><strong>🎯 决策风格：</strong>' + interpretation.decision + '</div>' +
-                    '<div style="margin-bottom:10px;"><strong>🤝 关系导向：</strong>' + interpretation.relation + '</div>' +
-                    '<div style="margin-bottom:10px;"><strong>⚖️ 风险态度：</strong>' + interpretation.risk + '</div>' +
-                    '<div><strong>💬 沟通方式：</strong>' + interpretation.comm + '</div>' +
+                    '<div style="margin-bottom:15px;padding:12px;background:#f0f4ff;border-radius:6px;">' +
+                    '<div style="font-size:12px;color:#667eea;margin-bottom:5px;"><strong>🎯 决策风格 · ' + (interpretation.decisionLabel || '') + '</strong></div>' +
+                    '<div style="color:#333;">' + interpretation.decision + '</div>' +
+                    '</div>' +
+                    '<div style="margin-bottom:15px;padding:12px;background:#f0fdf4;border-radius:6px;">' +
+                    '<div style="font-size:12px;color:#10b981;margin-bottom:5px;"><strong>🤝 关系导向 · ' + (interpretation.relationLabel || '') + '</strong></div>' +
+                    '<div style="color:#333;">' + interpretation.relation + '</div>' +
+                    '</div>' +
+                    '<div style="margin-bottom:15px;padding:12px;background:#fff7ed;border-radius:6px;">' +
+                    '<div style="font-size:12px;color:#f59e0b;margin-bottom:5px;"><strong>⚖️ 风险态度 · ' + (interpretation.riskLabel || '') + '</strong></div>' +
+                    '<div style="color:#333;">' + interpretation.risk + '</div>' +
+                    '</div>' +
+                    '<div style="padding:12px;background:#faf5ff;border-radius:6px;">' +
+                    '<div style="font-size:12px;color:#8b5cf6;margin-bottom:5px;"><strong>💬 沟通方式 · ' + (interpretation.commLabel || '') + '</strong></div>' +
+                    '<div style="color:#333;">' + interpretation.comm + '</div>' +
+                    '</div>' +
                     '</div>';
                 document.getElementById('personalizedInterpretation').innerHTML = interpHtml;
                 
