@@ -1326,7 +1326,7 @@
             var ctx = canvas.getContext('2d');
             
             canvas.width = 600;
-            canvas.height = 800;
+            canvas.height = 900;
             
             var gradient = ctx.createLinearGradient(0, 0, 0, 800);
             gradient.addColorStop(0, '#667eea');
@@ -1447,7 +1447,34 @@
             ctx.fillText('🏆 击败了 '+style.beatPercent+'% 的采购同行', 70, 765);
             ctx.fillStyle = '#999';
             ctx.font = '11px sans-serif';
-            ctx.fillText('👤 全国第 '+style.rank.toLocaleString()+' 位'+style.name, 70, 785);
+            ctx.fillText('👤 全国排名 | 优链学堂 · 供应链首席训练导师', 70, 785);
+            
+            // 底部二维码区域（占位）
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            if (ctx.roundRect) {
+                ctx.roundRect(200, 810, 200, 70, 10);
+            } else {
+                ctx.fillRect(200, 810, 200, 70);
+            }
+            ctx.fill();
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('扫码测试你的谈判风格', 300, 835);
+            ctx.fillStyle = '#999';
+            ctx.font = '10px sans-serif';
+            ctx.fillText('优链学堂出品', 300, 860);
+            
+            // 触发下载
+            try {
+                var link = document.createElement('a');
+                link.download = '我的谈判风格-' + code + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                alert('✅ 海报已生成！长按图片可以保存分享～');
+            } catch(e) {
+                alert('海报已生成，请截图保存');
+            }
             
             try {
                 var dataUrl = canvas.toDataURL('image/png');
