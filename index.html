@@ -928,14 +928,14 @@
         function renderQuestion() {
             var q = questions[currentIndex];
             document.getElementById('questionScene').textContent = q.scene;
-            document.getElementById('questionText').textContent = q.text;
+            document.getElementById('questionText').innerHTML = q.q;
             var container = document.getElementById('optionsContainer');
             container.innerHTML = '';
             for (var i = 0; i < q.options.length; i++) {
                 var opt = q.options[i];
                 var div = document.createElement('div');
                 div.className = 'option';
-                if (answers[currentIndex] === opt.score) div.classList.add('selected');
+                if (answers[currentIndex] === opt.dim) div.classList.add('selected');
                 div.onclick = (function(o) { return function() { selectOption(o.dim); }; })(opt);
                 var labels = ['A.', 'B.', 'C.', 'D.'];
                 div.innerHTML = '<div class="option-label">' + labels[i] + '</div><div class="option-text">' + opt.text + '</div>';
