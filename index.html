@@ -295,6 +295,7 @@
                     </div>
                 </div>
                 <button class="btn-start" onclick="startTest()">🚀 开始测试</button>
+                <button onclick="showDiag()" style="margin-top:10px;background:#f0f0f0;border:none;padding:8px 16px;border-radius:6px;font-size:12px;cursor:pointer;">🔍 诊断</button>
             </div>
         </div>
 
@@ -1067,6 +1068,18 @@
         // 页面加载时检查是否有团队
         window.onload = function() {
             console.log('采购谈判风格测试 v2.1 已加载');
+            console.log('questions:', typeof questions, Array.isArray(questions) ? questions.length : 'N/A');
+            console.log('styles:', typeof styles, typeof styles === 'object' ? Object.keys(styles).length : 'N/A');
+            console.log('startTest:', typeof startTest);
+            
+            // 错误诊断
+            window.__diag = {
+                questionsLoaded: typeof questions !== 'undefined' && Array.isArray(questions),
+                stylesLoaded: typeof styles !== 'undefined' && typeof styles === 'object',
+                questionsCount: Array.isArray(questions) ? questions.length : 0,
+                stylesCount: typeof styles === 'object' ? Object.keys(styles).length : 0
+            };
+            
             var savedTeam = localStorage.getItem('currentTeam');
             if (savedTeam) {
                 currentTeam = JSON.parse(savedTeam);
@@ -1077,7 +1090,24 @@
         var answers = [];
         var dimensionScores = { A: 0, I: 0, R: 0, T: 0, C: 0, B: 0, D: 0, P: 0 };
 
+        function showDiag() {
+            var d = window.__diag || {};
+            alert('诊断信息：\n\n' +
+                'questions: ' + (d.questionsLoaded ? '✅ ' + d.questionsCount + '题' : '❌ 未加载') + '\n' +
+                'styles: ' + (d.stylesLoaded ? '✅ ' + d.stylesCount + '种' : '❌ 未加载') + '\n' +
+                'startTest: ' + (typeof startTest === 'function' ? '✅ 已定义' : '❌ 未定义'));
+        }
+
         function startTest() {
+            console.log('startTest 被调用');
+            console.log('questions:', questions);
+            console.log('currentIndex:', currentIndex);
+            
+            if (!questions || !Array.isArray(questions) || questions.length === 0) {
+                alert('❌ 题目未加载！请刷新页面');
+                return;
+            }
+            
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('testPage').classList.remove('hidden');
             hideTopNav(); // 测试时隐藏导航，专注答题
