@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试 v2.1 - 最小化版本</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { padding: 15px 30px; font-size: 18px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .hidden { display: none; }
+        #testPage { margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>采购谈判风格测试 v2.1</h1>
+    
+    <div id="homePage">
+        <p>这是一个最小化测试版本</p>
+        <button class="btn" onclick="startTest()">🚀 开始测试</button>
+        <button class="btn" onclick="testJS()">🔍 测试 JS</button>
+        <div id="status" style="margin-top:20px;padding:10px;background:#fff;border:1px solid #ddd;"></div>
+    </div>
+    
+    <div id="testPage" class="hidden">
+        <h2>测试页面</h2>
+        <p>✅ 成功！</p>
+        <button class="btn" onclick="goHome()">返回</button>
+    </div>
+    
+    <script>
+        var log = function(msg) {
+            document.getElementById('status').innerHTML += '<div>' + msg + '</div>';
+            console.log(msg);
+        };
+        
+        function testJS() {
+            log('=== JS 测试 ===');
+            log('questions: ' + (typeof questions !== 'undefined' ? '✅ ' + questions.length + '题' : '❌ 未定义'));
+            log('styles: ' + (typeof styles !== 'undefined' ? '✅ ' + Object.keys(styles).length + '种' : '❌ 未定义'));
+            log('startTest: ' + (typeof startTest === 'function' ? '✅ 已定义' : '❌ 未定义'));
+        }
+        
+        function startTest() {
+            log('startTest 被点击');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('testPage').classList.remove('hidden');
+        }
+        
+        function goHome() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('testPage').classList.add('hidden');
+        }
+        
+        window.onload = function() {
+            log('页面加载完成');
+            testJS();
+        };
+    </script>
+    
+    <!-- 加载外部 JS -->
+    <script src="questions-v4.js"></script>
+    <script src="styles-v2.js"></script>
+</body>
+</html>
