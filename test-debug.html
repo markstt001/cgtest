@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试 v2.1 - 逐个加载 JS</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .card { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .btn { padding: 10px 20px; margin: 5px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        .btn.success { background: #22c55e; }
+        .btn.error { background: #ef4444; }
+        #log { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 JS 加载调试</h1>
+    
+    <div class="card">
+        <h3>步骤 1: 加载 questions-v4.js</h3>
+        <button class="btn" onclick="load1()">加载</button>
+        <span id="status1"></span>
+    </div>
+    
+    <div class="card">
+        <h3>步骤 2: 加载 styles-v2.js</h3>
+        <button class="btn" onclick="load2()">加载</button>
+        <span id="status2"></span>
+    </div>
+    
+    <div class="card">
+        <h3>步骤 3: 加载 poster-themes.js</h3>
+        <button class="btn" onclick="load3()">加载</button>
+        <span id="status3"></span>
+    </div>
+    
+    <div class="card">
+        <h3>步骤 4: 加载 personalized-interpretation-v4.js</h3>
+        <button class="btn" onclick="load4()">加载</button>
+        <span id="status4"></span>
+    </div>
+    
+    <div class="card">
+        <h3>步骤 5: 加载 enhanced-weaknesses-v2.js</h3>
+        <button class="btn" onclick="load5()">加载</button>
+        <span id="status5"></span>
+    </div>
+    
+    <div class="card">
+        <h3>步骤 6: 加载 result-enhanced.js</h3>
+        <button class="btn" onclick="load6()">加载</button>
+        <span id="status6"></span>
+    </div>
+    
+    <div class="card">
+        <h3>步骤 7: 测试 startTest 函数</h3>
+        <button class="btn" onclick="testStart()">测试</button>
+        <span id="status7"></span>
+    </div>
+    
+    <div class="card">
+        <h3>📋 日志</h3>
+        <div id="log"></div>
+    </div>
+    
+    <div class="card">
+        <button class="btn success" onclick="startTest()">🚀 开始测试（完整流程）</button>
+    </div>
+    
+    <script>
+        var log = function(msg, type='info') {
+            var d = document.getElementById('log');
+            var color = type === 'error' ? '#ff4444' : (type === 'success' ? '#00ff00' : '#00ff00');
+            d.innerHTML += '<div style="color:' + color + '">[' + new Date().toLocaleTimeString() + '] ' + msg + '</div>';
+            d.scrollTop = d.scrollHeight;
+            console.log(msg);
+        };
+        
+        function setStatus(id, ok, msg) {
+            var el = document.getElementById('status' + id);
+            el.innerHTML = ok ? '<span class="btn success">✅ ' + msg + '</span>' : '<span class="btn error">❌ ' + msg + '</span>';
+        }
+        
+        function load1() {
+            try {
+                var s = document.createElement('script');
+                s.src = 'questions-v4.js?v=20260320';
+                s.onload = function() {
+                    if (typeof questions !== 'undefined' && Array.isArray(questions)) {
+                        setStatus(1, true, questions.length + '题');
+                        log('✅ questions-v4.js 加载成功：' + questions.length + '题');
+                    } else {
+                        setStatus(1, false, 'questions 未定义');
+                        log('❌ questions-v4.js 加载失败：questions 未定义', 'error');
+                    }
+                };
+                s.onerror = function() {
+                    setStatus(1, false, '网络错误');
+                    log('❌ questions-v4.js 网络错误', 'error');
+                };
+                document.head.appendChild(s);
+            } catch(e) {
+                setStatus(1, false, e.message);
+                log('❌ questions-v4.js 异常：' + e.message, 'error');
+            }
+        }
+        
+        function load2() {
+            try {
+                var s = document.createElement('script');
+                s.src = 'styles-v2.js?v=20260320';
+                s.onload = function() {
+                    if (typeof styles !== 'undefined' && typeof styles === 'object') {
+                        setStatus(2, true, Object.keys(styles).length + '种');
+                        log('✅ styles-v2.js 加载成功：' + Object.keys(styles).length + '种风格');
+                    } else {
+                        setStatus(2, false, 'styles 未定义');
+                        log('❌ styles-v2.js 加载失败：styles 未定义', 'error');
+                    }
+                };
+                s.onerror = function() {
+                    setStatus(2, false, '网络错误');
+                    log('❌ styles-v2.js 网络错误', 'error');
+                };
+                document.head.appendChild(s);
+            } catch(e) {
+                setStatus(2, false, e.message);
+                log('❌ styles-v2.js 异常：' + e.message, 'error');
+            }
+        }
+        
+        function load3() {
+            try {
+                var s = document.createElement('script');
+                s.src = 'poster-themes.js?v=20260320';
+                s.onload = function() {
+                    if (typeof posterThemes !== 'undefined') {
+                        setStatus(3, true, Object.keys(posterThemes).length + '种');
+                        log('✅ poster-themes.js 加载成功：' + Object.keys(posterThemes).length + '种配色');
+                    } else {
+                        setStatus(3, false, 'posterThemes 未定义');
+                        log('❌ poster-themes.js 加载失败', 'error');
+                    }
+                };
+                s.onerror = function() {
+                    setStatus(3, false, '网络错误');
+                    log('❌ poster-themes.js 网络错误', 'error');
+                };
+                document.head.appendChild(s);
+            } catch(e) {
+                setStatus(3, false, e.message);
+                log('❌ poster-themes.js 异常：' + e.message, 'error');
+            }
+        }
+        
+        function load4() {
+            try {
+                var s = document.createElement('script');
+                s.src = 'personalized-interpretation-v4.js?v=20260320';
+                s.onload = function() {
+                    setStatus(4, true, 'OK');
+                    log('✅ personalized-interpretation-v4.js 加载成功');
+                };
+                s.onerror = function() {
+                    setStatus(4, false, '网络错误');
+                    log('❌ personalized-interpretation-v4.js 网络错误', 'error');
+                };
+                document.head.appendChild(s);
+            } catch(e) {
+                setStatus(4, false, e.message);
+                log('❌ personalized-interpretation-v4.js 异常：' + e.message, 'error');
+            }
+        }
+        
+        function load5() {
+            try {
+                var s = document.createElement('script');
+                s.src = 'enhanced-weaknesses-v2.js?v=20260320';
+                s.onload = function() {
+                    setStatus(5, true, 'OK');
+                    log('✅ enhanced-weaknesses-v2.js 加载成功');
+                };
+                s.onerror = function() {
+                    setStatus(5, false, '网络错误');
+                    log('❌ enhanced-weaknesses-v2.js 网络错误', 'error');
+                };
+                document.head.appendChild(s);
+            } catch(e) {
+                setStatus(5, false, e.message);
+                log('❌ enhanced-weaknesses-v2.js 异常：' + e.message, 'error');
+            }
+        }
+        
+        function load6() {
+            try {
+                var s = document.createElement('script');
+                s.src = 'result-enhanced.js?v=20260320';
+                s.onload = function() {
+                    setStatus(6, true, 'OK');
+                    log('✅ result-enhanced.js 加载成功');
+                };
+                s.onerror = function() {
+                    setStatus(6, false, '网络错误');
+                    log('❌ result-enhanced.js 网络错误', 'error');
+                };
+                document.head.appendChild(s);
+            } catch(e) {
+                setStatus(6, false, e.message);
+                log('❌ result-enhanced.js 异常：' + e.message, 'error');
+            }
+        }
+        
+        function testStart() {
+            log('=== 测试 startTest ===');
+            log('questions: ' + (typeof questions !== 'undefined' ? '✅' : '❌'));
+            log('styles: ' + (typeof styles !== 'undefined' ? '✅' : '❌'));
+            log('startTest: ' + (typeof startTest === 'function' ? '✅' : '❌'));
+            
+            if (typeof questions === 'undefined' || !Array.isArray(questions)) {
+                setStatus(7, false, 'questions 未加载');
+                return;
+            }
+            
+            setStatus(7, true, '可以开始');
+            log('✅ 所有依赖就绪');
+        }
+        
+        function startTest() {
+            log('🚀 startTest 被调用');
+            if (typeof questions === 'undefined') {
+                alert('❌ questions 未加载！请先加载步骤 1');
+                return;
+            }
+            alert('✅ startTest 可以执行！\nquestions: ' + questions.length + '题');
+        }
+        
+        log('页面加载完成');
+    </script>
+</body>
+</html>
