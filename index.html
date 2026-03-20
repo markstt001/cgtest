@@ -13,23 +13,17 @@
         .container { max-width: 600px; margin: 0 auto; background: #000; min-height: 100vh; }
         .hidden { display: none !important; }
         
-        /* Logo 样式 - DNA 双螺旋 + 对话气泡 */
+        /* Logo 样式 - Y 字母 DNA 变形 */
         .logo-container { width: 120px; height: 120px; margin: 0 auto 40px; position: relative; }
         .logo-circle { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #0071e3, #005bb5); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 60px rgba(0,113,227,0.4); animation: pulse 2s ease-in-out infinite; overflow: hidden; position: relative; }
         @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(0,113,227,0.4); } 50% { transform: scale(1.05); box-shadow: 0 30px 80px rgba(0,113,227,0.6); } }
-        .logo-dna { position: relative; width: 60px; height: 80px; }
-        .logo-dna-strand { position: absolute; width: 8px; height: 100%; background: linear-gradient(180deg, #fff, #5ac8fa); border-radius: 4px; }
-        .logo-dna-strand.left { left: 10px; animation: wave-left 2s ease-in-out infinite; }
-        .logo-dna-strand.right { right: 10px; animation: wave-right 2s ease-in-out infinite; }
-        .logo-dna-connector { position: absolute; width: 100%; height: 4px; background: rgba(255,255,255,0.6); border-radius: 2px; top: 20%; animation: connect 2s ease-in-out infinite; }
-        .logo-dna-connector:nth-child(3) { top: 40%; animation-delay: 0.2s; }
-        .logo-dna-connector:nth-child(4) { top: 60%; animation-delay: 0.4s; }
-        .logo-dna-connector:nth-child(5) { top: 80%; animation-delay: 0.6s; }
-        @keyframes wave-left { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
-        @keyframes wave-right { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-3px); } }
-        @keyframes connect { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-        .logo-bubble { position: absolute; width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; top: 5px; right: 5px; animation: bubble 2s ease-in-out infinite; }
-        @keyframes bubble { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } }
+        .logo-y { position: relative; width: 60px; height: 80px; }
+        .logo-y-left { position: absolute; left: 10px; top: 0; width: 10px; height: 50px; background: linear-gradient(180deg, #fff, #5ac8fa); border-radius: 5px; transform-origin: bottom center; transform: rotate(-25deg); animation: y-breathe 2s ease-in-out infinite; }
+        .logo-y-right { position: absolute; right: 10px; top: 0; width: 10px; height: 50px; background: linear-gradient(180deg, #fff, #5ac8fa); border-radius: 5px; transform-origin: bottom center; transform: rotate(25deg); animation: y-breathe 2s ease-in-out infinite reverse; }
+        .logo-y-stem { position: absolute; left: 25px; top: 45px; width: 10px; height: 35px; background: linear-gradient(180deg, #5ac8fa, #0071e3); border-radius: 5px; }
+        .logo-y-dot { position: absolute; left: 25px; top: 42px; width: 10px; height: 10px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.8); animation: y-glow 2s ease-in-out infinite; }
+        @keyframes y-breathe { 0%, 100% { transform: rotate(-25deg) scaleY(1); } 50% { transform: rotate(-28deg) scaleY(1.05); } }
+        @keyframes y-glow { 0%, 100% { opacity: 0.8; box-shadow: 0 0 15px rgba(255,255,255,0.6); } 50% { opacity: 1; box-shadow: 0 0 30px rgba(255,255,255,1); } }
         .logo-ring { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border: 2px solid rgba(0,113,227,0.3); border-radius: 50%; animation: rotate 3s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .logo-glow { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle, rgba(0,113,227,0.3) 0%, transparent 70%); animation: glow 2s ease-in-out infinite; }
@@ -133,15 +127,12 @@
                     <div class="logo-ring"></div>
                     <div class="logo-circle">
                         <div class="logo-glow"></div>
-                        <div class="logo-dna">
-                            <div class="logo-dna-strand left"></div>
-                            <div class="logo-dna-strand right"></div>
-                            <div class="logo-dna-connector"></div>
-                            <div class="logo-dna-connector"></div>
-                            <div class="logo-dna-connector"></div>
-                            <div class="logo-dna-connector"></div>
+                        <div class="logo-y">
+                            <div class="logo-y-left"></div>
+                            <div class="logo-y-right"></div>
+                            <div class="logo-y-stem"></div>
+                            <div class="logo-y-dot"></div>
                         </div>
-                        <div class="logo-bubble"></div>
                     </div>
                 </div>
                 <h1>采购谈判风格测试</h1>
