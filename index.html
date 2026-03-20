@@ -2,46 +2,99 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>采购谈判风格测试 v2.1 - 发现你的谈判超能力</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>采购谈判风格测试 v2.1 - 发现你的谈判超能力</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; min-height: 100dvh; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+        @media (min-width: 600px) { .container { min-height: 100vh; border-radius: 0; } }
+        @media (max-width: 600px) { .container { min-height: 100dvh; } }
         .hidden { display: none !important; }
-        .hero { text-align: center; padding: 30px 0 20px; }
-        .hero h1 { font-size: 24px; color: #333; margin-bottom: 10px; }
-        .hero p { color: #666; margin-bottom: 20px; }
-        .btn-start { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 18px 40px; border-radius: 25px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
-        .option { padding: 15px; margin: 10px 0; background: #f8f9ff; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s; }
-        .option:hover { background: #e8ecff; }
-        .option.selected { border-color: #667eea; background: #e8ecff; }
-        .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; margin: 20px 0; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.3s; }
-        .btn-nav { background: #f0f0f0; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; margin: 5px; }
-        .btn-nav:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        /* 结果页样式 */
-        .result-header { text-align: center; padding: 30px 0 20px; border-bottom: 2px solid #f0f0f0; }
-        .result-animal { font-size: 80px; }
-        .result-code { font-size: 48px; font-weight: bold; color: #667eea; margin: 10px 0; }
-        .result-name { font-size: 24px; color: #333; margin: 10px 0; }
-        .result-role { color: #666; font-size: 14px; }
-        .section { margin: 20px 0; padding: 15px; background: #f8f9ff; border-radius: 8px; }
-        .section-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .section-content { font-size: 14px; line-height: 1.7; color: #555; }
-        .mbti-insight { background: linear-gradient(135deg, #f0f4ff, #e8ecff); border-left: 4px solid #667eea; padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 14px; line-height: 1.7; color: #333; white-space: pre-line; }
-        .weakness-item { background: white; padding: 12px; margin: 10px 0; border-radius: 6px; border-left: 3px solid #f59e0b; }
-        .weakness-title { font-weight: bold; color: #333; margin-bottom: 8px; }
-        .weakness-scene { color: #666; font-size: 13px; margin: 5px 0; }
-        .weakness-improve { color: #667eea; font-size: 13px; margin: 5px 0; }
-        .weakness-positive { color: #22c55e; font-size: 13px; margin: 5px 0; }
-        .btn-action { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin: 10px 0; box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        /* 首页英雄区 */
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 20px 40px; text-align: center; }
+        .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 15px; line-height: 1.3; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .hero p { font-size: 16px; opacity: 0.95; margin-bottom: 10px; line-height: 1.6; }
+        .hero .highlight { font-size: 14px; opacity: 0.85; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
+        
+        /* 测试按钮 */
+        .btn-start { background: white; color: #667eea; border: none; padding: 20px 40px; border-radius: 50px; font-size: 20px; font-weight: 800; cursor: pointer; width: calc(100% - 40px); margin: 30px 20px; box-shadow: 0 8px 30px rgba(102,126,234,0.4); transition: all 0.3s; }
+        .btn-start:active { transform: scale(0.98); }
+        
+        /* 测试页 */
+        .test-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; }
+        .progress-bar { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 15px 0 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: white; transition: width 0.3s; }
+        .progress-text { text-align: center; font-size: 13px; opacity: 0.9; }
+        .question-area { padding: 25px 20px; background: #f8f9ff; }
+        .question-text { font-size: 18px; font-weight: 700; color: #333; line-height: 1.6; margin-bottom: 20px; }
+        .question-scene { color: #667eea; font-size: 14px; margin-bottom: 15px; font-weight: 600; }
+        .options-container { padding: 0 20px 20px; }
+        .option { padding: 18px; margin: 12px 0; background: white; border-radius: 12px; cursor: pointer; border: 2px solid #e8ecff; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .option:hover { border-color: #667eea; background: #f0f4ff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,126,234,0.15); }
+        .option.selected { border-color: #667eea; background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 20px rgba(102,126,234,0.3); }
+        .option-text { font-size: 15px; line-height: 1.5; }
+        .nav-buttons { padding: 20px; background: white; border-top: 1px solid #f0f0f0; display: flex; gap: 10px; justify-content: center; }
+        .btn-nav { background: #f0f0f0; color: #666; border: none; padding: 14px 28px; border-radius: 25px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; flex: 1; max-width: 150px; }
+        .btn-nav:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-nav.primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        
+        /* 结果页 */
+        .result-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 40px 20px; text-align: center; }
+        .result-animal { font-size: 100px; margin-bottom: 10px; text-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .result-code { font-size: 56px; font-weight: 900; margin: 10px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .result-name { font-size: 26px; font-weight: 700; margin: 10px 0; }
+        .result-role { font-size: 15px; opacity: 0.9; margin-top: 10px; }
+        .result-content { padding: 25px 20px; }
+        .section { margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #f8f9ff, #f0f4ff); border-radius: 16px; border: 1px solid #e8ecff; }
+        .section-title { font-size: 17px; font-weight: 800; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .mbti-insight { background: white; border-left: 4px solid #667eea; padding: 18px; border-radius: 8px; margin: 15px 0; font-size: 15px; line-height: 1.8; color: #333; white-space: pre-line; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .weakness-item { background: white; padding: 16px; margin: 12px 0; border-radius: 10px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .weakness-title { font-weight: 700; color: #333; margin-bottom: 10px; font-size: 15px; }
+        .weakness-scenario { color: #666; font-size: 13px; margin: 6px 0; line-height: 1.5; }
+        .weakness-improve { color: #667eea; font-size: 13px; margin: 6px 0; line-height: 1.5; font-weight: 600; }
+        .weakness-positive { color: #22c55e; font-size: 13px; margin: 6px 0; line-height: 1.5; font-weight: 600; }
+        .tags { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+        .tag { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 16px; border-radius: 25px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 10px rgba(102,126,234,0.3); }
+        .btn-action { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 18px 30px; border-radius: 50px; font-size: 17px; font-weight: 800; cursor: pointer; width: 100%; margin: 15px 0; box-shadow: 0 6px 25px rgba(102,126,234,0.4); transition: all 0.3s; }
+        .btn-action:active { transform: scale(0.98); }
         .btn-secondary { background: #f0f0f0; color: #666; }
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-        .tag { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; }
+        .course-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 16px; margin: 20px 0; box-shadow: 0 6px 25px rgba(102,126,234,0.3); }
+        .course-name { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+        .course-teacher { font-size: 14px; opacity: 0.9; margin-bottom: 5px; }
+        .course-price { font-size: 24px; font-weight: 900; margin: 15px 0; }
+        .course-btn { background: white; color: #667eea; border: none; padding: 14px 30px; border-radius: 50px; font-size: 16px; font-weight: 800; cursor: pointer; display: inline-block; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        /* 团队功能 */
+        .team-section { background: linear-gradient(135deg, #f0f4ff, #e8ecff); padding: 25px 20px; margin: 20px 0; border-radius: 16px; }
+        .team-title { font-size: 18px; font-weight: 800; color: #333; margin-bottom: 15px; text-align: center; }
+        .team-btn { background: white; color: #667eea; border: 2px solid #667eea; padding: 14px 30px; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; margin: 10px 0; width: 100%; box-shadow: 0 4px 15px rgba(102,126,234,0.2); }
+        
+        /* 弹窗 */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; }
+        .modal-title { font-size: 22px; font-weight: 800; color: #333; margin-bottom: 15px; }
+        .modal-input { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center; margin: 15px 0; letter-spacing: 3px; }
+        .modal-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; margin: 10px 0; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        
+        /* 底部导航 */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; padding: 10px 20px; display: flex; justify-content: space-around; }
+        .nav-item { text-align: center; color: #999; font-size: 12px; cursor: pointer; }
+        .nav-item.active { color: #667eea; font-weight: 700; }
+        .nav-icon { font-size: 24px; margin-bottom: 4px; }
+        
+        /* 移动端适配 */
+        @media (max-width: 375px) {
+            .hero h1 { font-size: 26px; }
+            .hero p { font-size: 14px; }
+            .btn-start { font-size: 18px; padding: 18px 30px; }
+            .result-animal { font-size: 80px; }
+            .result-code { font-size: 42px; }
+        }
     </style>
 </head>
 <body>
@@ -49,22 +102,32 @@
         <!-- 首页 -->
         <div id="homePage">
             <div class="hero">
-                <h1>🎯 采购谈判风格测试 v2.1</h1>
-                <p>28 道场景题，发现你的谈判超能力</p>
-                <p style="color: #999; font-size: 13px;">已有 1,234 位采购参与测试</p>
+                <h1>🎯 发现你的<br>谈判超能力</h1>
+                <p>28 道真实场景题，揭秘你的谈判风格</p>
+                <p>已有 <strong>1,234</strong> 位采购精英参与测试</p>
+                <div class="highlight">
+                    <p>📊 获取你的专属谈判风格报告</p>
+                    <p>💡 了解优势与成长方向</p>
+                    <p>🏆 对比同行水平</p>
+                </div>
             </div>
-            <button class="btn-start" onclick="startTest()">🚀 开始测试</button>
+            <button class="btn-start" onclick="startTest()">🚀 立即开始测试</button>
         </div>
         
         <!-- 测试页 -->
         <div id="testPage" class="hidden">
-            <div class="progress-bar"><div id="progressBar" class="progress-fill" style="width: 0%;"></div></div>
-            <div id="progressText" style="text-align: center; color: #999; font-size: 13px; margin-bottom: 20px;"></div>
-            <div id="questionText" style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 20px;"></div>
-            <div id="optionsContainer"></div>
-            <div style="text-align: center; margin-top: 20px;">
+            <div class="test-header">
+                <div class="progress-bar"><div id="progressBar" class="progress-fill" style="width: 0%;"></div></div>
+                <div id="progressText" class="progress-text"></div>
+            </div>
+            <div class="question-area">
+                <div id="questionScene" class="question-scene"></div>
+                <div id="questionText" class="question-text"></div>
+            </div>
+            <div id="optionsContainer" class="options-container"></div>
+            <div class="nav-buttons">
                 <button id="prevBtn" class="btn-nav" onclick="prevQuestion()" disabled>← 上一题</button>
-                <button id="nextBtn" class="btn-nav" onclick="nextQuestion()">下一题 →</button>
+                <button id="nextBtn" class="btn-nav primary" onclick="nextQuestion()">下一题 →</button>
             </div>
         </div>
         
@@ -77,50 +140,107 @@
                 <div class="result-role" id="resultRole"></div>
             </div>
             
-            <!-- 快速版：默认显示 -->
-            <div id="quickVersion">
-                <div class="section">
-                    <div class="section-title">🔮 MBTI 内心洞察</div>
-                    <div class="mbti-insight" id="mbtiInsight"></div>
+            <div class="result-content">
+                <!-- 快速版 -->
+                <div id="quickVersion">
+                    <div class="section">
+                        <div class="section-title">🔮 MBTI 内心洞察</div>
+                        <div class="mbti-insight" id="mbtiInsight"></div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">🏷️ 神秘标签</div>
+                        <div class="tags" id="mysteryTags"></div>
+                    </div>
+                    
+                    <button class="btn-action" onclick="showFullReport()">📖 查看深度报告</button>
                 </div>
                 
-                <div class="section">
-                    <div class="section-title">🏷️ 神秘标签</div>
-                    <div class="tags" id="mysteryTags"></div>
+                <!-- 完整版 -->
+                <div id="fullVersion" class="hidden">
+                    <button class="btn-action btn-secondary" onclick="showQuickVersion()" style="margin-bottom: 15px;">🔙 返回快速版</button>
+                    
+                    <div class="section">
+                        <div class="section-title">💪 核心优势</div>
+                        <div id="strengths"></div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">⚠️ 致命弱点</div>
+                        <div id="weaknesses"></div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">💡 行动建议</div>
+                        <div id="actions"></div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">🏆 名人对标</div>
+                        <div id="celebrityStory"></div>
+                    </div>
+                    
+                    <!-- 课程推荐 -->
+                    <div class="course-card">
+                        <div class="course-name">📚 《供应商管理与谈判实战》</div>
+                        <div class="course-teacher">讲师：姜宏锋</div>
+                        <div class="course-price">💰 限时优惠：¥1,999</div>
+                        <button class="course-btn" onclick="enrollCourse()">立即报名 →</button>
+                    </div>
+                    
+                    <button class="btn-action" onclick="generatePoster()">📸 生成海报分享</button>
                 </div>
                 
-                <button class="btn-action" onclick="showFullReport()">📖 查看深度报告</button>
-                <div style="font-size: 12px; color: #999; text-align: center; margin-top: 10px;">包含核心优势、致命弱点、行动建议、名人对标等</div>
+                <!-- 团队功能 -->
+                <div class="team-section">
+                    <div class="team-title">👥 团队功能</div>
+                    <button class="team-btn" onclick="showJoinTeamModal()">加入团队</button>
+                    <button class="team-btn" onclick="createTeamFromResult()">创建团队</button>
+                </div>
+                
+                <button class="btn-action btn-secondary" onclick="retakeTest()" style="margin-top: 20px;">🔄 重新测试</button>
             </div>
-            
-            <!-- 完整版：默认隐藏 -->
-            <div id="fullVersion" class="hidden">
-                <button class="btn-action btn-secondary" onclick="showQuickVersion()" style="margin-bottom: 15px;">🔙 返回快速版</button>
-                
-                <div class="section">
-                    <div class="section-title">💪 核心优势</div>
-                    <div class="section-content" id="strengths"></div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">⚠️ 致命弱点</div>
-                    <div id="weaknesses"></div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">💡 行动建议</div>
-                    <div class="section-content" id="actions"></div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">🏆 名人对标</div>
-                    <div class="section-content" id="celebrityStory"></div>
-                </div>
-                
-                <button class="btn-action" onclick="generatePoster()">📸 生成海报分享</button>
+        </div>
+        
+        <!-- 我的页面 -->
+        <div id="myPage" class="hidden">
+            <div class="hero">
+                <h1>👤 我的</h1>
             </div>
-            
-            <button class="btn-action btn-secondary" onclick="retakeTest()" style="margin-top: 20px;">🔄 重新测试</button>
+            <div class="result-content">
+                <div class="section">
+                    <div class="section-title">📊 我的测试结果</div>
+                    <div id="myResult"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">👥 我的团队</div>
+                    <div id="myTeam"></div>
+                </div>
+                <button class="btn-action btn-secondary" onclick="clearAllData()">🗑️ 清除所有数据</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav" id="bottomNav">
+        <div class="nav-item active" onclick="goHome()">
+            <div class="nav-icon">🏠</div>
+            <div>首页</div>
+        </div>
+        <div class="nav-item" onclick="goToMyPage()">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+    
+    <!-- 加入团队弹窗 -->
+    <div id="joinTeamModal" class="hidden modal">
+        <div class="modal-content">
+            <div class="modal-title">👥 加入团队</div>
+            <p style="color:#666;margin-bottom:15px;">输入团队邀请码，和同事一起对比谈判风格</p>
+            <input type="text" id="inviteCodeInput" class="modal-input" placeholder="8 位邀请码" maxlength="8">
+            <button class="modal-btn" onclick="joinTeam()">加入团队</button>
+            <button class="modal-btn btn-secondary" onclick="closeJoinTeamModal()" style="margin-top:10px;">取消</button>
         </div>
     </div>
     
@@ -138,17 +258,21 @@
         var answers = [];
         var dimensionScores = { A: 0, I: 0, R: 0, T: 0, C: 0, B: 0, D: 0, P: 0 };
         var currentResult = null;
+        var currentTeam = null;
+        var currentUserResult = null;
         
         function startTest() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('testPage').classList.remove('hidden');
+            document.getElementById('bottomNav').classList.add('hidden');
             renderQuestion();
             updateProgress();
         }
         
         function renderQuestion() {
             var q = questions[currentIndex];
-            document.getElementById('questionText').innerHTML = q.scene + '：<br><br>' + q.q;
+            document.getElementById('questionScene').textContent = '📍 ' + q.scene;
+            document.getElementById('questionText').textContent = q.q;
             var container = document.getElementById('optionsContainer');
             container.innerHTML = '';
             for (var i = 0; i < q.options.length; i++) {
@@ -208,7 +332,7 @@
             var pct = ((currentIndex + 1) / 28) * 100;
             document.getElementById('progressBar').style.width = pct + '%';
             var stage = Math.floor(currentIndex / 7) + 1;
-            document.getElementById('progressText').innerHTML = '<strong>' + (currentIndex + 1) + '</strong> / 28 · 第 ' + stage + ' 阶段';
+            document.getElementById('progressText').textContent = '第 ' + (currentIndex + 1) + ' / 28 题 · 第 ' + stage + ' 阶段';
         }
         
         function updateNav() {
@@ -222,7 +346,6 @@
             code += dimensionScores.R >= dimensionScores.T ? 'R' : 'T';
             code += dimensionScores.C >= dimensionScores.B ? 'C' : 'B';
             code += dimensionScores.D >= dimensionScores.P ? 'D' : 'P';
-            
             showResult(code);
         }
         
@@ -234,32 +357,28 @@
             var story = getCelebrityStory(code);
             
             currentResult = { code: code, style: style, interpretation: interpretation, weaknesses: weaknesses, tags: tags, story: story };
+            currentUserResult = { code: code, style: style };
+            localStorage.setItem('myTestResult', JSON.stringify(currentUserResult));
             
-            // 基本信息
             document.getElementById('resultAnimal').textContent = style.animal;
             document.getElementById('resultCode').textContent = code;
             document.getElementById('resultName').textContent = style.name;
             document.getElementById('resultRole').textContent = style.role;
-            
-            // MBTI 洞察
             document.getElementById('mbtiInsight').textContent = interpretation.mbti;
             
-            // 神秘标签
             var tagsHtml = '';
             for (var i = 0; i < Math.min(3, tags.length); i++) {
                 tagsHtml += '<span class="tag">' + tags[i] + '</span>';
             }
             document.getElementById('mysteryTags').innerHTML = tagsHtml;
             
-            // 核心优势
             var strengthsHtml = '';
-            if (interpretation.decision) strengthsHtml += '<div><strong>决策风格：</strong>' + interpretation.decision + '</div>';
-            if (interpretation.relation) strengthsHtml += '<div style="margin-top:8px;"><strong>关系导向：</strong>' + interpretation.relation + '</div>';
-            if (interpretation.risk) strengthsHtml += '<div style="margin-top:8px;"><strong>风险态度：</strong>' + interpretation.risk + '</div>';
-            if (interpretation.comm) strengthsHtml += '<div style="margin-top:8px;"><strong>沟通方式：</strong>' + interpretation.comm + '</div>';
+            if (interpretation.decision) strengthsHtml += '<div style="margin-bottom:12px;"><strong>📊 决策风格：</strong>' + interpretation.decision + '</div>';
+            if (interpretation.relation) strengthsHtml += '<div style="margin-bottom:12px;"><strong>🤝 关系导向：</strong>' + interpretation.relation + '</div>';
+            if (interpretation.risk) strengthsHtml += '<div style="margin-bottom:12px;"><strong>⚖️ 风险态度：</strong>' + interpretation.risk + '</div>';
+            if (interpretation.comm) strengthsHtml += '<div><strong>💬 沟通方式：</strong>' + interpretation.comm + '</div>';
             document.getElementById('strengths').innerHTML = strengthsHtml;
             
-            // 致命弱点
             var weaknessesHtml = '';
             for (var i = 0; i < weaknesses.length; i++) {
                 var w = weaknesses[i];
@@ -272,21 +391,19 @@
             }
             document.getElementById('weaknesses').innerHTML = weaknessesHtml;
             
-            // 行动建议
-            var actionsHtml = '<div>基于你的风格，建议：</div>';
-            actionsHtml += '<div style="margin-top:10px;">1️⃣ 发挥你的 ' + (dimensionScores.A >= dimensionScores.I ? '数据分析' : '直觉判断') + ' 优势</div>';
-            actionsHtml += '<div style="margin-top:5px;">2️⃣ 在 ' + (dimensionScores.R >= dimensionScores.T ? '关系维护' : '任务执行') + ' 上继续保持</div>';
-            actionsHtml += '<div style="margin-top:5px;">3️⃣ 注意平衡 ' + (dimensionScores.C >= dimensionScores.B ? '谨慎' : '冒险') + ' 倾向</div>';
+            var actionsHtml = '<div style="line-height:1.8;">';
+            actionsHtml += '<div style="margin-bottom:10px;">1️⃣ 发挥你的 <strong>' + (dimensionScores.A >= dimensionScores.I ? '数据分析' : '直觉判断') + '</strong> 优势</div>';
+            actionsHtml += '<div style="margin-bottom:10px;">2️⃣ 在 <strong>' + (dimensionScores.R >= dimensionScores.T ? '关系维护' : '任务执行') + '</strong> 上继续保持</div>';
+            actionsHtml += '<div>3️⃣ 注意平衡 <strong>' + (dimensionScores.C >= dimensionScores.B ? '谨慎' : '冒险') + '</strong> 倾向</div>';
+            actionsHtml += '</div>';
             document.getElementById('actions').innerHTML = actionsHtml;
             
-            // 名人对标
             document.getElementById('celebrityStory').innerHTML = 
-                '<div style="font-size:18px;font-weight:bold;margin-bottom:10px;">' + story.name + ' - ' + story.title + '</div>' +
-                '<div style="line-height:1.7;">' + story.story + '</div>' +
-                '<div style="margin-top:15px;color:#667eea;"><strong>' + story.scene + '</strong></div>' +
-                '<div style="margin-top:10px;color:#22c55e;"><strong>' + story.aspiration + '</strong></div>';
+                '<div style="font-size:20px;font-weight:800;margin-bottom:12px;">' + story.name + ' · ' + story.title + '</div>' +
+                '<div style="line-height:1.8;color:#555;">' + story.story + '</div>' +
+                '<div style="margin-top:15px;padding:12px;background:#f0f4ff;border-radius:8px;color:#667eea;"><strong>📍 ' + story.scene + '</strong></div>' +
+                '<div style="margin-top:10px;padding:12px;background:#f0fff4;border-radius:8px;color:#22c55e;"><strong>🌟 ' + story.aspiration + '</strong></div>';
             
-            // 显示结果页
             document.getElementById('testPage').classList.add('hidden');
             document.getElementById('resultPage').classList.remove('hidden');
         }
@@ -311,55 +428,102 @@
             canvas.width = 600;
             canvas.height = 800;
             
-            // 使用风格专属配色
             var gradient = ctx.createLinearGradient(0, 0, 0, 800);
-            var c = theme.gradient[0].match(/#[0-9a-fA-F]{6}/g) || ['#667eea', '#764ba2'];
+            var colors = {
+                ARCD: ['#1e3c72', '#2a5298'], ARCP: ['#FF9966', '#FF5E62'],
+                ARBD: ['#667eea', '#764ba2'], ARBP: ['#56ab2f', '#a8e063'],
+                ATCD: ['#434343', '#2c3e50'], ATCP: ['#141E30', '#243B55'],
+                ATBD: ['#cb2d3e', '#ef473a'], ATBP: ['#FF8008', '#FFC837'],
+                IRCD: ['#11998e', '#38ef7d'], IRCP: ['#ee9ca7', '#ffdde1'],
+                IRBD: ['#FFD700', '#FF8C00'], IRBP: ['#667eea', '#764ba2'],
+                ITCD: ['#0f2027', '#203a43'], ITCP: ['#4facfe', '#00f2fe'],
+                ITBD: ['#FF8008', '#FFC837'], ITBP: ['#4facfe', '#43e97b']
+            };
+            var c = colors[code] || ['#667eea', '#764ba2'];
             gradient.addColorStop(0, c[0]);
-            gradient.addColorStop(1, c[1] || c[0]);
+            gradient.addColorStop(1, c[1]);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, 600, 800);
             
-            // 标题
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 22px sans-serif';
+            ctx.font = 'bold 24px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('🎯 我的采购谈判风格', 300, 45);
+            ctx.fillText('🎯 我的采购谈判风格', 300, 50);
             
-            // 风格代码
             ctx.font = 'bold 100px sans-serif';
             var codeGrad = ctx.createLinearGradient(0,80,600,80);
             codeGrad.addColorStop(0,'#ffffff');
             codeGrad.addColorStop(1,'#f0f0ff');
             ctx.fillStyle = codeGrad;
-            ctx.fillText(code, 300, 155);
+            ctx.fillText(code, 300, 170);
             
-            // 风格名
-            ctx.font = 'bold 38px sans-serif';
+            ctx.font = 'bold 40px sans-serif';
             ctx.fillStyle = '#ffffff';
-            ctx.fillText(style.name, 300, 210);
+            ctx.fillText(style.name, 300, 230);
             
-            // 角色定位
-            ctx.font = '18px sans-serif';
+            ctx.font = '20px sans-serif';
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.fillText(style.role, 300, 245);
+            ctx.fillText(style.role, 300, 265);
             
-            // 动物图标
-            ctx.font = '80px sans-serif';
+            ctx.font = '90px sans-serif';
             ctx.fillStyle = '#ffffff';
-            ctx.fillText(style.animal, 300, 340);
+            ctx.fillText(style.animal, 300, 380);
             
-            // 底部信息
-            ctx.font = '14px sans-serif';
+            ctx.font = '16px sans-serif';
             ctx.fillStyle = 'rgba(255,255,255,0.8)';
-            ctx.fillText('优链学堂 · 供应链首席训练导师', 300, 750);
+            ctx.fillText('优链学堂 · 供应链首席训练导师', 300, 760);
             
-            // 下载
-            var link = document.createElement('a');
-            link.download = '我的谈判风格-' + code + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-            alert('🎉 海报已生成并下载！');
+            try {
+                var dataUrl = canvas.toDataURL('image/png');
+                var link = document.createElement('a');
+                link.download = '我的谈判风格-' + code + '.png';
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                alert('🎉 海报已生成并下载！请检查下载文件夹');
+            } catch(e) {
+                console.error('海报生成失败:', e);
+                var newWindow = window.open();
+                newWindow.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="max-width:100%;">');
+                newWindow.document.write('<div style="text-align:center;padding:20px;"><button onclick="window.print()" style="padding:15px 30px;font-size:16px;">🖨️ 打印/保存</button></div>');
+            }
+        }
+        
+        function enrollCourse() {
+            alert('📚 感谢兴趣！\n\n请联系客服微信：yourkefu 或拨打热线：400-XXX-XXXX\n\n限时优惠：¥1,999（原价¥2,999）');
+        }
+        
+        function showJoinTeamModal() {
+            document.getElementById('joinTeamModal').classList.remove('hidden');
+            document.getElementById('inviteCodeInput').value = '';
+        }
+        
+        function closeJoinTeamModal() {
+            document.getElementById('joinTeamModal').classList.add('hidden');
+        }
+        
+        function joinTeam() {
+            var code = document.getElementById('inviteCodeInput').value.trim().toUpperCase();
+            if (!code || code.length !== 8) {
+                alert('请输入 8 位邀请码');
+                return;
+            }
+            currentTeam = { name: '团队-' + code, inviteCode: code, members: [] };
+            localStorage.setItem('currentTeam', JSON.stringify(currentTeam));
+            closeJoinTeamModal();
+            alert('✅ 加入团队成功！');
+            updateMyPage();
+        }
+        
+        function createTeamFromResult() {
+            var code = currentResult ? currentResult.code : 'ARCD';
+            var name = '谈判风格团队-' + code;
+            var inviteCode = code + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            currentTeam = { name: name, inviteCode: inviteCode, members: [currentResult || {code: code, name: '用户'}] };
+            localStorage.setItem('currentTeam', JSON.stringify(currentTeam));
+            alert('✅ 团队创建成功！\n\n团队名称：' + name + '\n邀请码：' + inviteCode);
+            updateMyPage();
         }
         
         function retakeTest() {
@@ -368,10 +532,57 @@
             dimensionScores = { A: 0, I: 0, R: 0, T: 0, C: 0, B: 0, D: 0, P: 0 };
             document.getElementById('resultPage').classList.add('hidden');
             document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('bottomNav').classList.remove('hidden');
+        }
+        
+        function goHome() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('testPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.add('hidden');
+            document.getElementById('myPage').classList.add('hidden');
+            document.getElementById('bottomNav').classList.remove('hidden');
+        }
+        
+        function goToMyPage() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('testPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.add('hidden');
+            document.getElementById('myPage').classList.remove('hidden');
+            updateMyPage();
+        }
+        
+        function updateMyPage() {
+            var savedResult = localStorage.getItem('myTestResult');
+            if (savedResult) {
+                var r = JSON.parse(savedResult);
+                document.getElementById('myResult').innerHTML = '<div style="font-size:40px;text-align:center;margin:20px 0;">' + (styles[r.code] ? styles[r.code].animal : '') + '</div><div style="text-align:center;font-size:24px;font-weight:bold;color:#667eea;">' + r.code + '</div><div style="text-align:center;color:#666;">' + r.style.name + '</div>';
+            } else {
+                document.getElementById('myResult').innerHTML = '<div style="text-align:center;color:#999;padding:30px;">暂无测试结果，先去测试一下吧～</div>';
+            }
+            
+            var savedTeam = localStorage.getItem('currentTeam');
+            if (savedTeam) {
+                var t = JSON.parse(savedTeam);
+                document.getElementById('myTeam').innerHTML = '<div style="font-size:18px;font-weight:bold;margin-bottom:10px;">' + t.name + '</div><div style="color:#666;">邀请码：' + t.inviteCode + '</div>';
+            } else {
+                document.getElementById('myTeam').innerHTML = '<div style="text-align:center;color:#999;padding:30px;">暂无团队，创建一个或加入团队吧～</div>';
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清除所有数据吗？\n\n这将删除：\n- 测试结果\n- 团队信息\n- 所有历史记录')) {
+                localStorage.clear();
+                alert('✅ 数据已清除！');
+                location.reload();
+            }
         }
         
         window.onload = function() {
             console.log('✅ 采购谈判风格测试 v2.1 完整版已加载');
+            var savedTeam = localStorage.getItem('currentTeam');
+            if (savedTeam) {
+                currentTeam = JSON.parse(savedTeam);
+            }
         };
     </script>
 </body>
