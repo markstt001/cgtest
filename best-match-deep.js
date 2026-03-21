@@ -465,8 +465,6 @@ function getBestMatchDeep(styleCode) {
   return bestMatchDeep[styleCode] || null;
 }
 
-// 兼容旧版本
+// 兼容浏览器全局
 window.bestMatchDeep = bestMatchDeep;
 window.getBestMatchDeep = getBestMatchDeep;
-
-export { bestMatchDeep, getBestMatchDeep };

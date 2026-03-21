@@ -321,5 +321,3 @@ function generateTeamReport(members) {
 window.generateTeamReport = generateTeamReport;
 window.teamReportConfig = teamReportConfig;
 window.styleDefinitions = styleDefinitions;
-
-export { generateTeamReport, teamReportConfig, styleDefinitions };

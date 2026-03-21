@@ -343,8 +343,8 @@ function getCooperationGuide(code1, code2) {
   return generateCooperationGuide(code1, code2);
 }
 
+// 兼容浏览器全局
 window.cooperationGuides = cooperationGuides;
 window.getCooperationGuide = getCooperationGuide;
 window.generateCooperationGuide = generateCooperationGuide;
-
-export { cooperationGuides, getCooperationGuide, generateCooperationGuide };
+window.styleDefinitions = styleDefinitions;

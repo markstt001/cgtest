@@ -560,38 +560,46 @@
                 }
                 
                 // 最佳搭档 - 使用深度解读版本
-                if (typeof getBestMatchDeep === 'function') {
-                    var bestMatchData = getBestMatchDeep(code);
-                    if (bestMatchData && document.getElementById('bestMatch')) {
-                        var matchHtml = `
-                            <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">${bestMatchData.match} ${bestMatchData.matchName}</div>
-                            <div style="font-size:13px;color:#86868b;margin-bottom:16px;">角色：${bestMatchData.role}</div>
-                            
-                            <div style="margin-bottom:16px;">
-                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【为什么是你们】</div>
-                                <div style="font-size:14px;color:#fff;line-height:1.8;">${bestMatchData.why}</div>
-                            </div>
-                            
-                            <div style="margin-bottom:16px;">
-                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【合作场景】</div>
-                                <div style="font-size:14px;color:#fff;line-height:1.8;">${bestMatchData.scenarios}</div>
-                            </div>
-                            
-                            <div style="margin-bottom:16px;">
-                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【小心踩坑】</div>
-                                <div style="font-size:14px;color:#f5a623;line-height:1.8;">${bestMatchData.pitfalls}</div>
-                            </div>
-                            
-                            <div style="margin-bottom:16px;">
-                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【沟通秘籍】</div>
-                                <div style="font-size:14px;color:#0071e3;line-height:1.8;font-weight:600;">${bestMatchData.tips}</div>
-                            </div>
-                            
-                            <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.2);">
-                                <div style="font-size:16px;font-weight:700;color:#34c759;">"${bestMatchData.goldenQuote}"</div>
-                            </div>
-                        `;
-                        document.getElementById('bestMatch').innerHTML = matchHtml;
+                var bestMatchElement = document.getElementById('bestMatch');
+                if (bestMatchElement) {
+                    if (typeof getBestMatchDeep === 'function') {
+                        var bestMatchData = getBestMatchDeep(code);
+                        console.log('最佳搭档数据:', bestMatchData);
+                        if (bestMatchData) {
+                            var matchHtml = `
+                                <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">${bestMatchData.match} ${bestMatchData.matchName}</div>
+                                <div style="font-size:13px;color:#86868b;margin-bottom:16px;">角色：${bestMatchData.role}</div>
+                                
+                                <div style="margin-bottom:16px;">
+                                    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【为什么是你们】</div>
+                                    <div style="font-size:14px;color:#fff;line-height:1.8;">${bestMatchData.why}</div>
+                                </div>
+                                
+                                <div style="margin-bottom:16px;">
+                                    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【合作场景】</div>
+                                    <div style="font-size:14px;color:#fff;line-height:1.8;">${bestMatchData.scenarios}</div>
+                                </div>
+                                
+                                <div style="margin-bottom:16px;">
+                                    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【小心踩坑】</div>
+                                    <div style="font-size:14px;color:#f5a623;line-height:1.8;">${bestMatchData.pitfalls}</div>
+                                </div>
+                                
+                                <div style="margin-bottom:16px;">
+                                    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">【沟通秘籍】</div>
+                                    <div style="font-size:14px;color:#0071e3;line-height:1.8;font-weight:600;">${bestMatchData.tips}</div>
+                                </div>
+                                
+                                <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.2);">
+                                    <div style="font-size:16px;font-weight:700;color:#34c759;">"${bestMatchData.goldenQuote}"</div>
+                                </div>
+                            `;
+                            bestMatchElement.innerHTML = matchHtml;
+                        } else {
+                            bestMatchElement.innerHTML = '<div style="color:#86868b;">未找到最佳搭档数据</div>';
+                        }
+                    } else {
+                        bestMatchElement.innerHTML = '<div style="color:#86868b;">最佳搭档功能加载中...</div>';
                     }
                 }
                 
@@ -801,7 +809,7 @@
         function selectPartnerCode(code) {
             document.getElementById('partnerCodeInput').value = code;
             // 自动查询
-            queryCooperationWithCode(code);
+            setTimeout(function() { queryCooperationWithCode(code); }, 100);
         }
         
         // 合作说明书查询功能
@@ -815,6 +823,74 @@
         }
         
         function queryCooperationWithCode(partnerCode) {
+            try {
+                // 检查函数是否存在
+                if (typeof getCooperationGuide !== 'function') {
+                    alert('查询功能加载中，请稍后再试');
+                    console.error('getCooperationGuide 函数未定义');
+                    return;
+                }
+                
+                var myCode = currentResult ? currentResult.code : null;
+                if (!myCode) {
+                    alert('请先完成测试或查看测试结果');
+                    return;
+                }
+                
+                var guide = getCooperationGuide(myCode, partnerCode);
+                if (!guide) {
+                    alert('未找到该风格代码，请检查输入');
+                    return;
+                }
+                
+                var resultDiv = document.getElementById('cooperationResult');
+                var html = `
+                    <div class="card" style="background:linear-gradient(135deg, #2c2c2e, #1c1c1e);border:2px solid #0071e3;">
+                        <div class="card-body">
+                            <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;">📋 ${myCode} × ${partnerCode} 合作说明书</div>
+                            <div style="font-size:13px;color:#86868b;margin-bottom:20px;">组合类型：${guide.type} · ${guide.role}</div>
+                            
+                            <div style="margin-bottom:20px;">
+                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:10px;">【角色分工】</div>
+                                <div style="font-size:14px;color:#fff;line-height:1.8;">
+                                    你（${myCode} ${styleDefinitions[myCode].name}）：${guide.yourRole}<br>
+                                    他（${partnerCode} ${styleDefinitions[partnerCode].name}）：${guide.theirRole}
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom:20px;">
+                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:10px;">【合作优势】</div>
+                                ${guide.advantages.map(function(a) { return '<div style="font-size:14px;color:#fff;line-height:1.6;margin:6px 0;">✅ ' + a + '</div>'; }).join('')}
+                            </div>
+                            
+                            <div style="margin-bottom:20px;">
+                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:10px;">【冲突预警】</div>
+                                <div style="font-size:14px;color:#fff;line-height:1.6;">⚠️ ${guide.conflicts}</div>
+                            </div>
+                            
+                            <div style="margin-bottom:20px;">
+                                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:10px;">【合作秘籍】</div>
+                                <div style="font-size:14px;color:#0071e3;line-height:1.6;font-weight:600;">💡 ${guide.solution}</div>
+                            </div>
+                            
+                            <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #333;">
+                                <div style="font-size:16px;font-weight:700;color:#0071e3;">"${guide.quote}"</div>
+                            </div>
+                            
+                            <button class="btn-action btn-secondary" onclick="shareCooperationGuide('${myCode}', '${partnerCode}')" style="margin-top:20px;">📤 分享给 TA</button>
+                        </div>
+                    </div>
+                `;
+                resultDiv.innerHTML = html;
+                resultDiv.classList.remove('hidden');
+                
+                // 滚动到结果
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch(e) {
+                console.error('查询失败:', e);
+                alert('查询失败：' + e.message + '\n\n请刷新页面重试');
+            }
+        }
             
             var myCode = currentResult ? currentResult.code : null;
             if (!myCode) {
