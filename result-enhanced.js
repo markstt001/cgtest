@@ -239,7 +239,54 @@ function selectPartnerCode(code) {
     queryCooperationGuide(code);
 }
 
+// 分享合作说明书
+function shareCooperationGuide(code1, code2) {
+    var guide = getCooperationGuide(code1, code2);
+    var text = "我是" + code1 + " " + (styleDefinitions[code1] ? styleDefinitions[code1].name : "") + "，你是" + code2 + " " + (styleDefinitions[code2] ? styleDefinitions[code2].name : "") + "。\n\n我们的合作说明书：" + (guide ? guide.quote : "") + "\n\n快来测测你的谈判风格：https://yugao2.github.io/negotiation-test/";
+    
+    if (navigator.share) {
+        navigator.share({
+            title: '合作说明书',
+            text: text,
+            url: 'https://yugao2.github.io/negotiation-test/'
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('已复制到剪贴板，可以粘贴分享给朋友了！');
+        }, function() {
+            alert('复制失败，请手动复制：\n\n' + text);
+        });
+    }
+}
+
+// 分享测试链接
+function shareTestLink() {
+    var myResult = window.currentResult || window.currentUserResult || null;
+    if (!myResult) {
+        try {
+            myResult = JSON.parse(localStorage.getItem('myTestResult'));
+        } catch(e) {}
+    }
+    var text = "我刚测了采购谈判风格，结果是" + (myResult ? myResult.code + " " + (myResult.style ? myResult.style.name : "") : "") + "！\n\n你也来测测：https://yugao2.github.io/negotiation-test/";
+    
+    if (navigator.share) {
+        navigator.share({
+            title: '采购谈判风格测试',
+            text: text,
+            url: 'https://yugao2.github.io/negotiation-test/'
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('已复制到剪贴板，可以粘贴分享了！');
+        }, function() {
+            alert('复制失败，请手动复制：\n\n' + text);
+        });
+    }
+}
+
 // 暴露到全局
 window.renderBestMatchOptimized = renderBestMatchOptimized;
 window.queryCooperationGuide = queryCooperationGuide;
 window.selectPartnerCode = selectPartnerCode;
+window.shareCooperationGuide = shareCooperationGuide;
+window.shareTestLink = shareTestLink;
