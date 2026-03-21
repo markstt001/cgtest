@@ -68,8 +68,24 @@ function renderBestMatchOptimized(code) {
 function queryCooperationGuide(partnerCode) {
     console.log('=== 开始查询合作说明书 ===');
     console.log('partnerCode:', partnerCode);
-    console.log('currentResult:', currentResult);
-    console.log('currentResult.code:', currentResult ? currentResult.code : null);
+    
+    // 使用 window.currentResult 确保能访问到
+    var myResult = window.currentResult || window.currentUserResult || null;
+    
+    // 尝试从 localStorage 获取
+    if (!myResult) {
+        try {
+            var saved = localStorage.getItem('myTestResult');
+            if (saved) {
+                myResult = JSON.parse(saved);
+                console.log('从 localStorage 恢复:', myResult);
+            }
+        } catch(e) {
+            console.error('解析 localStorage 失败:', e);
+        }
+    }
+    
+    console.log('myResult:', myResult);
     console.log('getCooperationGuide:', typeof getCooperationGuide);
     console.log('styleDefinitions:', typeof styleDefinitions);
     
@@ -87,7 +103,7 @@ function queryCooperationGuide(partnerCode) {
             return;
         }
         
-        var myCode = currentResult ? currentResult.code : null;
+        var myCode = myResult ? myResult.code : null;
         if (!myCode) {
             alert('请先完成测试或查看测试结果');
             return;
@@ -189,17 +205,34 @@ function queryCooperationGuide(partnerCode) {
 function selectPartnerCode(code) {
     console.log('=== 选择风格代码 ===');
     console.log('code:', code);
-    console.log('currentResult:', currentResult);
+    
+    // 使用 window.currentResult 确保能访问到
+    var myResult = window.currentResult || window.currentUserResult || null;
+    
+    // 尝试从 localStorage 获取
+    if (!myResult) {
+        try {
+            var saved = localStorage.getItem('myTestResult');
+            if (saved) {
+                myResult = JSON.parse(saved);
+                console.log('从 localStorage 恢复:', myResult);
+            }
+        } catch(e) {
+            console.error('解析 localStorage 失败:', e);
+        }
+    }
+    
+    console.log('myResult:', myResult);
     
     // 检查是否已完成测试
-    if (!currentResult || !currentResult.code) {
+    if (!myResult || !myResult.code) {
         alert('请先完成测试，查看您的风格类型后再查询合作指南');
         // 滚动到页面顶部，提示用户
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
     
-    console.log('myCode:', currentResult.code);
+    console.log('myCode:', myResult.code);
     console.log('partnerCode:', code);
     
     // 直接查询

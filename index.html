@@ -244,6 +244,9 @@
                     <div class="card-body">
                         <p style="color:#86868b;font-size:14px;margin-bottom:16px;">想知道如何跟 XX 风格合作？点击下方风格按钮，立即查看合作指南</p>
                         
+                        <!-- 调试按钮 -->
+                        <button onclick="console.log('currentResult:', window.currentResult); console.log('currentUserResult:', window.currentUserResult); console.log('localStorage:', localStorage.getItem('myTestResult')); alert('请查看浏览器控制台（F12）的日志输出')" style="width:100%;padding:10px;margin-bottom:16px;background:#1c1c1e;border:1px dashed #333;border-radius:8px;color:#666;font-size:12px;cursor:pointer;">🔍 调试：查看 currentResult</button>
+                        
                         <!-- 风格选择器 -->
                         <div style="margin-bottom:20px;">
                             <div style="font-size:12px;color:#666;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">选择对方的风格</div>
