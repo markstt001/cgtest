@@ -232,24 +232,24 @@ const cooperationGuides = {
 // 16 种风格代码
 const styleCodes = ["ARCD", "ARCP", "ARBD", "ARBP", "ATCD", "ATCP", "ATBD", "ATBP", "IRCD", "IRCP", "IRBD", "IRBP", "ITCD", "ITCP", "ITBD", "ITBP"];
 
-// 风格定义（4 维度）
+// 风格定义（4 维度）- 与 styles-v2.js 保持一致
 const styleDefinitions = {
   ARCD: { A: true, R: true, C: true, D: true, name: "战略架构师" },
-  ARCP: { A: true, R: true, C: true, P: true, name: "战略协调者" },
-  ARBD: { A: true, R: true, B: true, D: true, name: "谨慎守护者" },
-  ARBP: { A: true, R: true, B: true, P: true, name: "和谐维系者" },
-  ATCD: { A: true, T: true, C: true, D: true, name: "精算防御者" },
-  ATCP: { A: true, T: true, C: true, P: true, name: "理性协商者" },
-  ATBD: { A: true, T: true, B: true, D: true, name: "独立判断者" },
-  ATBP: { A: true, T: true, B: true, P: true, name: "务实协调者" },
-  IRCD: { I: true, R: true, C: true, D: true, name: "创新开拓者" },
-  IRCP: { I: true, R: true, C: true, P: true, name: "愿景推动者" },
-  IRBD: { I: true, R: true, B: true, D: true, name: "风险投资者" },
-  IRBP: { I: true, R: true, B: true, P: true, name: "信任 builder" },
-  ITCD: { I: true, T: true, C: true, D: true, name: "数据猎手" },
-  ITCP: { I: true, T: true, C: true, P: true, name: "果断执行者" },
-  ITBD: { I: true, T: true, B: true, D: true, name: "创新合伙人" },
-  ITBP: { I: true, T: true, B: true, P: true, name: "愿景推动者" }
+  ARCP: { A: true, R: true, C: true, P: true, name: "关系建筑师" },
+  ARBD: { A: true, R: true, B: true, D: true, name: "创新探索者" },
+  ARBP: { A: true, R: true, B: true, P: true, name: "团队推动者" },
+  ATCD: { A: true, T: true, C: true, D: true, name: "市场洞察者" },
+  ATCP: { A: true, T: true, C: true, P: true, name: "快速决策者" },
+  ATBD: { A: true, T: true, B: true, D: true, name: "战略架构师" },
+  ATBP: { A: true, T: true, B: true, P: true, name: "效率优化师" },
+  IRCD: { I: true, R: true, C: true, D: true, name: "数据驱动者" },
+  IRCP: { I: true, R: true, C: true, P: true, name: "机会捕捉者" },
+  IRBD: { I: true, R: true, B: true, D: true, name: "果断执行者" },
+  IRBP: { I: true, R: true, B: true, P: true, name: "温和协调者" },
+  ITCD: { I: true, T: true, C: true, D: true, name: "灵活适应者" },
+  ITCP: { I: true, T: true, C: true, P: true, name: "社交联结者" },
+  ITBD: { I: true, T: true, B: true, D: true, name: "谨慎守护者" },
+  ITBP: { I: true, T: true, B: true, P: true, name: "魅力影响者" }
 };
 
 // 生成其他组合的文案
