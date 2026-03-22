@@ -35,7 +35,7 @@ const bestMatchDeep = {
 
   ARCP: {
     match: "ATBD",
-    matchName: "独立判断者",
+    matchName: "逻辑架构师",
     why: `
 你负责「战略和双赢」，他负责「执行和决断」。
 你容易想太多，他帮你拍板。
@@ -177,7 +177,7 @@ const bestMatchDeep = {
 
   ATBD: {
     match: "ARCP",
-    matchName: "战略协调者",
+    matchName: "关系建筑师",
     why: `
 你负责「独立和决断」，他负责「战略和协调」。
 你容易独断，他帮你凝聚。

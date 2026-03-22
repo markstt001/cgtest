@@ -240,7 +240,7 @@ const styleDefinitions = {
   ARBP: { A: true, R: true, B: true, P: true, name: "团队推动者" },
   ATCD: { A: true, T: true, C: true, D: true, name: "市场洞察者" },
   ATCP: { A: true, T: true, C: true, P: true, name: "快速决策者" },
-  ATBD: { A: true, T: true, B: true, D: true, name: "战略架构师" },
+  ATBD: { A: true, T: true, B: true, D: true, name: "逻辑架构师" },
   ATBP: { A: true, T: true, B: true, P: true, name: "效率优化师" },
   IRCD: { I: true, R: true, C: true, D: true, name: "数据驱动者" },
   IRCP: { I: true, R: true, C: true, P: true, name: "机会捕捉者" },
@@ -249,7 +249,7 @@ const styleDefinitions = {
   ITCD: { I: true, T: true, C: true, D: true, name: "灵活适应者" },
   ITCP: { I: true, T: true, C: true, P: true, name: "社交联结者" },
   ITBD: { I: true, T: true, B: true, D: true, name: "谨慎守护者" },
-  ITBP: { I: true, T: true, B: true, P: true, name: "魅力影响者" }
+  ITBP: { I: true, T: true, B: true, P: true, name: "愿景推动者" }
 };
 
 // 生成其他组合的文案

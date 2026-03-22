@@ -20,12 +20,12 @@ const teamReportConfig = {
 if (typeof window.styleDefinitions === 'undefined') {
   window.styleDefinitions = {
     ARCD: { name: "战略架构师", animal: "🦉", dimension: "分析 + 关系 + 竞争 + 防御" },
-    ARCP: { name: "战略协调者", animal: "🦉", dimension: "分析 + 关系 + 竞争 + 开拓" },
+    ARCP: { name: "关系建筑师", animal: "🦉", dimension: "分析 + 关系 + 竞争 + 开拓" },
     ARBD: { name: "谨慎守护者", animal: "🦉", dimension: "分析 + 关系 + 合作 + 防御" },
     ARBP: { name: "和谐维系者", animal: "🦉", dimension: "分析 + 关系 + 合作 + 开拓" },
     ATCD: { name: "精算防御者", animal: "🦅", dimension: "分析 + 任务 + 竞争 + 防御" },
     ATCP: { name: "理性协商者", animal: "🦅", dimension: "分析 + 任务 + 竞争 + 开拓" },
-    ATBD: { name: "独立判断者", animal: "🦅", dimension: "分析 + 任务 + 合作 + 防御" },
+    ATBD: { name: "逻辑架构师", animal: "🦅", dimension: "分析 + 任务 + 合作 + 防御" },
     ATBP: { name: "务实协调者", animal: "🦅", dimension: "分析 + 任务 + 合作 + 开拓" },
     IRCD: { name: "创新开拓者", animal: "🦊", dimension: "直觉 + 关系 + 竞争 + 防御" },
     IRCP: { name: "关系联结者", animal: "🦊", dimension: "直觉 + 关系 + 竞争 + 开拓" },

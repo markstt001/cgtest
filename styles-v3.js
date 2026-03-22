@@ -49,7 +49,7 @@ var styles = {
     },
     ATBD: {
         animal: '🦅',
-        name: '战略架构师',
+        name: '逻辑架构师',
         role: '用逻辑构建体系，用创新优化流程',
         mbti: 'INTP · 逻辑学家型',
         percent: '约占人群的 6%'
