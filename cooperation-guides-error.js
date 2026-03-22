@@ -9,6 +9,7 @@ const cooperationGuides = {
     yourRole: "数据和战略",
     theirRole: "流程和执行",
     advantages: [
+      "📌 分工明确：
       "📌 分工明确：你定战略方向，他拆任务流程",
       "📌 互补优势：你算得准，他落得稳",
       "📌 风险对冲：你想得远，他做得细"
@@ -23,6 +24,7 @@ const cooperationGuides = {
     yourRole: "关系和凝聚",
     theirRole: "逻辑和体系",
     advantages: [
+      "📌 分工明确：
       "📌 分工明确：你凝聚人心，他构建体系",
       "📌 互补优势：你让人愿意干，他让人知道怎么干",
       "📌 风险对冲：你搞关系，他定规则"
@@ -37,6 +39,7 @@ const cooperationGuides = {
     yourRole: "风险和关系",
     theirRole: "机会和竞争",
     advantages: [
+      "📌 分工明确：
       "📌 分工明确：你踩刹车，他踩油门",
       "📌 互补优势：你看到风险，他看到机会",
       "📌 风险对冲：你太保守时他推一把，他太急时你拉一把"
@@ -51,6 +54,7 @@ const cooperationGuides = {
     yourRole: "关系和氛围",
     theirRole: "数据和战略",
     advantages: [
+      "📌 分工明确：
       "你维护关系，他守护利益——软硬兼施",
       "你容易妥协，他帮你坚守——有原则地合作",
       "他容易太硬，你帮他软化——避免树敌"
@@ -65,6 +69,7 @@ const cooperationGuides = {
     yourRole: "数据和竞争",
     theirRole: "关系和合作",
     advantages: [
+      "📌 分工明确：
       "你争取利益，他维护关系——既赢又不得罪人",
       "你容易树敌，他帮你修复——避免被孤立",
       "他容易妥协，你帮他争取——有底线地合作"
@@ -79,6 +84,7 @@ const cooperationGuides = {
     yourRole: "理性和竞争",
     theirRole: "谨慎和关系",
     advantages: [
+      "📌 分工明确：
       "你争取最大利益，他识别潜在风险——攻守平衡",
       "你容易冒进，他帮你踩刹车——避免踩坑",
       "他容易保守，你帮他突破——不错过机会"
@@ -93,6 +99,7 @@ const cooperationGuides = {
     yourRole: "独立和决断",
     theirRole: "战略和协调",
     advantages: [
+      "📌 分工明确：
       "你快速拍板，他协调资源——决策容易落地",
       "你容易独断，他帮你凝聚——避免众叛亲离",
       "他容易犹豫，你帮他拍板——推动事情前进"
@@ -107,6 +114,7 @@ const cooperationGuides = {
     yourRole: "务实和协调",
     theirRole: "创新和竞争",
     advantages: [
+      "📌 分工明确：
       "你负责落地，他负责创新——既有创意又能实现",
       "你容易保守，他帮你突破——不固步自封",
       "他容易冒进，你帮他落地——不是空想"
@@ -121,6 +129,7 @@ const cooperationGuides = {
     yourRole: "创新和竞争",
     theirRole: "务实和协调",
     advantages: [
+      "📌 分工明确：
       "你出创意，他做落地——想法能实现",
       "你容易冒进，他帮你踩刹车——避免浪费",
       "他容易保守，你帮他突破——不固步自封"
@@ -135,6 +144,7 @@ const cooperationGuides = {
     yourRole: "愿景和合作",
     theirRole: "执行和创新",
     advantages: [
+      "📌 分工明确：
       "你画愿景，他定计划——方向明确又能干",
       "你容易空想，他帮你实干——不是画大饼",
       "他容易埋头，你帮他抬头看路——不迷失方向"
@@ -149,6 +159,7 @@ const cooperationGuides = {
     yourRole: "人脉和冒险",
     theirRole: "任务和执行",
     advantages: [
+      "📌 分工明确：
       "你找资源，他做事情——资源能变现",
       "你容易冒险，他帮你落地——不是瞎折腾",
       "他容易保守，你帮他突破——不错过机会"
@@ -163,6 +174,7 @@ const cooperationGuides = {
     yourRole: "信任和合作",
     theirRole: "数据和竞争",
     advantages: [
+      "📌 分工明确：
       "你建信任，他做背调——既安全又高效",
       "你容易信人，他帮你验证——避免被骗",
       "他容易怀疑，你帮他建立信任——降低交易成本"
@@ -177,6 +189,7 @@ const cooperationGuides = {
     yourRole: "数据和竞争",
     theirRole: "信任和合作",
     advantages: [
+      "📌 分工明确：
       "你验证数据，他建立信任——既有依据又有人情",
       "你容易树敌，他帮你修复——避免被孤立",
       "他容易妥协，你帮他争取——有底线地合作"
@@ -191,6 +204,7 @@ const cooperationGuides = {
     yourRole: "执行和竞争",
     theirRole: "战略和数据",
     advantages: [
+      "📌 分工明确：
       "你冲锋陷阵，他出谋划策——胜算更大",
       "你容易冲动，他帮你谋划——避免踩坑",
       "他容易犹豫，他帮你拍板——不错过时机"
@@ -205,6 +219,7 @@ const cooperationGuides = {
     yourRole: "创新和竞争",
     theirRole: "愿景和合作",
     advantages: [
+      "📌 分工明确：
       "你做创新，他描绘愿景——方向明确",
       "你容易埋头，他帮你抬头——不迷失方向",
       "他容易空想，你帮他实干——不是画大饼"
@@ -219,6 +234,7 @@ const cooperationGuides = {
     yourRole: "愿景和执行",
     theirRole: "人脉和冒险",
     advantages: [
+      "📌 分工明确：
       "你做事情，他搞关系——资源充足",
       "你容易保守，他帮你突破——不错过机会",
       "他容易冒险，你帮他落地——不是瞎折腾"
