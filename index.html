@@ -426,17 +426,17 @@
     
     <canvas id="posterCanvas" style="display: none;"></canvas>
     
-    <script src="poster-themes.js?v=202603220932"></script>
-    <script src="questions-v4.js?v=202603220932"></script>
-    <script src="styles-v3.js?t=202603220932"></script>
-    <script src="personalized-interpretation-v4.js?v=202603220932"></script>
-    <script src="enhanced-weaknesses-v2.js?v=202603220932"></script>
-    <script src="celebrity-stories.js?v=202603220932"></script>
-    <script src="mystery-tags.js?v=202603220932"></script>
-    <script src="best-match-deep.js?v=202603220932"></script>
-    <script src="cooperation-guides.js?v=202603220932"></script>
-    <script src="team-report.js?v=202603220932"></script>
-    <script src="result-enhanced.js?v=202603220932"></script>
+    <script src="poster-themes.js?v=202603220936"></script>
+    <script src="questions-v4.js?v=202603220936"></script>
+    <script src="styles-v3.js?t=202603220936"></script>
+    <script src="personalized-interpretation-v4.js?v=202603220936"></script>
+    <script src="enhanced-weaknesses-v2.js?v=202603220936"></script>
+    <script src="celebrity-stories.js?v=202603220936"></script>
+    <script src="mystery-tags.js?v=202603220936"></script>
+    <script src="best-match-deep.js?v=202603220936"></script>
+    <script src="cooperation-guides.js?v=202603220936"></script>
+    <script src="team-report.js?v=202603220936"></script>
+    <script src="result-enhanced.js?v=202603220936"></script>
     <script>
         var currentIndex = 0;
         var answers = [];
@@ -475,15 +475,20 @@
         }
         
         function selectOption(el, dim) {
+            console.log('--- 第', currentIndex + 1, '题 ---');
+            console.log('选择维度:', dim);
             var options = document.querySelectorAll('.option');
             options.forEach(function(o) { o.classList.remove('selected'); });
             el.classList.add('selected');
             // 如果这题之前选过，先扣除之前的分数
             if (answers[currentIndex]) {
+                console.log('修改答案：扣除', answers[currentIndex], '的分数');
                 dimensionScores[answers[currentIndex]]--;
             }
             answers[currentIndex] = dim;
             dimensionScores[dim]++;
+            console.log('当前计分:', JSON.stringify(dimensionScores));
+            console.log('总分:', Object.values(dimensionScores).reduce(function(a,b){return a+b}, 0));
             setTimeout(function() {
                 if (currentIndex < 27) {
                     currentIndex++;
