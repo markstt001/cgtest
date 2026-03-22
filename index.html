@@ -222,6 +222,7 @@
                         <div class="card-title">🔮 内心洞察</div>
                     </div>
                     <div class="card-body">
+                        <div id="rarityExpression" style="margin-bottom:20px;"></div>
                         <div class="insight-box" id="mbtiInsight"></div>
                     </div>
                 </div>
@@ -426,17 +427,17 @@
     
     <canvas id="posterCanvas" style="display: none;"></canvas>
     
-    <script src="poster-themes.js?v=202603221505"></script>
-    <script src="questions-v4.js?v=202603221505"></script>
-    <script src="styles-v3.js?t=202603221505"></script>
-    <script src="personalized-interpretation-v4.js?v=202603221505"></script>
-    <script src="enhanced-weaknesses-v2.js?v=202603221505"></script>
-    <script src="celebrity-stories.js?v=202603221505"></script>
-    <script src="mystery-tags.js?v=202603221505"></script>
-    <script src="best-match-deep.js?v=202603221505"></script>
-    <script src="cooperation-guides.js?v=202603221505"></script>
-    <script src="team-report.js?v=202603221505"></script>
-    <script src="result-enhanced.js?v=202603221505"></script>
+    <script src="poster-themes.js?v=202603221530"></script>
+    <script src="questions-v4.js?v=202603221530"></script>
+    <script src="styles-v3.js?t=202603221530"></script>
+    <script src="personalized-interpretation-v4.js?v=202603221530"></script>
+    <script src="enhanced-weaknesses-v2.js?v=202603221530"></script>
+    <script src="celebrity-stories.js?v=202603221530"></script>
+    <script src="mystery-tags.js?v=202603221530"></script>
+    <script src="best-match-deep.js?v=202603221530"></script>
+    <script src="cooperation-guides.js?v=202603221530"></script>
+    <script src="team-report.js?v=202603221530"></script>
+    <script src="result-enhanced.js?v=202603221530"></script>
     <script>
         var currentIndex = 0;
         var answers = [];
@@ -578,8 +579,12 @@
             
             document.getElementById('resultAnimal').textContent = style.animal;
             document.getElementById('resultCode').textContent = code;
-            document.getElementById('resultName').textContent = style.name;
+            document.getElementById('resultName').innerHTML = style.name + '<br><span style="font-size:16px;color:#0071e3;font-weight:600;">' + style.nickname + '</span>';
             document.getElementById('resultRole').textContent = style.role;
+            
+            // 渲染稀缺性表达
+            renderRarityExpression(code, style);
+            
             document.getElementById('mbtiInsight').textContent = interpretation.mbti;
             
             // 最佳搭档 - 使用优化版本
@@ -754,6 +759,42 @@
             document.getElementById('resultPage').classList.add('hidden');
             document.getElementById('myPage').classList.add('hidden');
             document.getElementById('bottomNav').classList.remove('hidden');
+        }
+        
+        // 渲染稀缺性表达（4 种组合）
+        function renderRarityExpression(code, style) {
+            var el = document.getElementById('rarityExpression');
+            if (!el) return;
+            var html = '';
+            // 组合 1: 游戏化 B+C+J+Q (ARBD, ATCP, IRCP, ITBD)
+            if (['ARBD', 'ATCP', 'IRCP', 'ITBD'].includes(code)) {
+                html += '<div style="background:linear-gradient(135deg, #667eea, #764ba2);padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;">🎮 稀有度：' + style.rarity + '</div><div style="font-size:14px;color:#fff;line-height:1.8;">⚡ 超能力：' + style.superpower + '</div></div>';
+                html += '<div style="background:#1c1c1e;padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#e0e0e0;line-height:1.8;">' + style.contrast + '</div></div>';
+                html += '<div style="text-align:center;padding:12px;background:rgba(102,126,234,0.1);border-radius:12px;border:1px dashed rgba(102,126,234,0.4);"><div style="font-size:13px;color:#667eea;">' + style.timeValue + '</div></div>';
+            }
+            // 组合 2: 商业化 D+F+K (ARCD, ARCP, ATCD, IRBD)
+            else if (['ARCD', 'ARCP', 'ATCD', 'IRBD'].includes(code)) {
+                html += '<div style="background:linear-gradient(135deg, #f093fb, #f5576c);padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#fff;line-height:1.8;">💼 ' + style.workplace + '</div></div>';
+                html += '<div style="background:#1c1c1e;padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#e0e0e0;line-height:1.8;">🎭 ' + style.celebrity + '</div></div>';
+                html += '<div style="text-align:center;padding:12px;background:rgba(245,87,108,0.1);border-radius:12px;border:1px dashed rgba(245,87,108,0.4);"><div style="font-size:13px;color:#f5576c;">💰 ' + style.valuation + '</div></div>';
+            }
+            // 组合 3: 职场化 D+G+I+J (ARBP, ATBD, ATBP, IRBP)
+            else if (['ARBP', 'ATBD', 'ATBP', 'IRBP'].includes(code)) {
+                html += '<div style="background:linear-gradient(135deg, #4facfe, #00f2fe);padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#fff;line-height:1.8;">💼 ' + style.workplace + '</div></div>';
+                html += '<div style="background:rgba(245,166,35,0.08);padding:16px;border-radius:12px;margin-bottom:12px;border:1px solid rgba(245,166,35,0.3);"><div style="font-size:13px;font-weight:700;color:#f5a623;margin-bottom:8px;">⚠️ 适合/不适合</div><div style="font-size:14px;color:#fff;line-height:1.8;">' + style.reverse + '</div></div>';
+                html += '<div style="background:#1c1c1e;padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#e0e0e0;line-height:1.8;">🏆 ' + style.level + '</div></div>';
+                html += '<div style="text-align:center;padding:12px;background:rgba(79,172,254,0.1);border-radius:12px;border:1px dashed rgba(79,172,254,0.4);"><div style="font-size:13px;color:#4facfe;">⚡ ' + style.superpower + '</div></div>';
+            }
+            // 组合 4: 社交化 C+J+N (IRCD, ITCD, ITCP, ITBP)
+            else if (['IRCD', 'ITCD', 'ITCP', 'ITBP'].includes(code)) {
+                html += '<div style="background:#1c1c1e;padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#e0e0e0;line-height:1.8;">⚡ 超能力：' + style.superpower + '</div></div>';
+                html += '<div style="background:linear-gradient(135deg, #fa709a, #fee140);padding:16px;border-radius:12px;margin-bottom:12px;"><div style="font-size:14px;color:#fff;line-height:1.8;">' + style.contrast + '</div></div>';
+                html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+                var tags = style.tags.split(' ');
+                tags.forEach(function(tag) { html += '<span class="tag" style="background:rgba(250,112,154,0.2);color:#fa709a;padding:8px 14px;border-radius:980px;font-size:13px;font-weight:600;">' + tag + '</span>'; });
+                html += '</div>';
+            }
+            el.innerHTML = html;
         }
         
         // 页面加载时恢复 currentResult（从 localStorage）
