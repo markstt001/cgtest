@@ -35,7 +35,7 @@ const bestMatchDeep = {
 
   ARCP: {
     match: "ATBD",
-    matchName: "逻辑架构师",
+    matchName: "逻辑控",
     why: `
 你负责「战略和双赢」，他负责「执行和决断」。
 你容易想太多，他帮你拍板。
@@ -91,7 +91,7 @@ const bestMatchDeep = {
 
   ARBP: {
     match: "ARCD",
-    matchName: "战略架构师",
+    matchName: "数据军师",
     why: `
 你负责「关系和氛围」，他负责「数据和战略」。
 你容易妥协，他帮你坚守。
@@ -149,7 +149,7 @@ const bestMatchDeep = {
 
   ATCP: {
     match: "ARBD",
-    matchName: "谨慎守护者",
+    matchName: "守门员",
     why: `
 你负责「理性和竞争」，他负责「谨慎和关系」。
 你容易冒进，他帮你踩刹车。
@@ -177,7 +177,7 @@ const bestMatchDeep = {
 
   ATBD: {
     match: "ARCP",
-    matchName: "关系建筑师",
+    matchName: "关系达人",
     why: `
 你负责「独立和决断」，他负责「战略和协调」。
 你容易独断，他帮你凝聚。
@@ -263,7 +263,7 @@ const bestMatchDeep = {
 
   IRCP: {
     match: "ITBD",
-    matchName: "谨慎守护者",
+    matchName: "守门员",
     why: `
 你负责「愿景和合作」，他负责「执行和创新」。
 你容易空想，他帮你实干。
@@ -291,7 +291,7 @@ const bestMatchDeep = {
 
   IRBD: {
     match: "ITCP",
-    matchName: "果断执行者",
+    matchName: "人脉王",
     why: `
 你负责「人脉和冒险」，他负责「任务和执行」。
 你容易冒险，他帮你落地。
@@ -377,7 +377,7 @@ const bestMatchDeep = {
 
   ITCP: {
     match: "ARCD",
-    matchName: "战略架构师",
+    matchName: "数据军师",
     why: `
 你负责「执行和竞争」，他负责「战略和数据」。
 你容易冲动，他帮你谋划。

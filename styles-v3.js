@@ -1,124 +1,247 @@
-// 16 种谈判风格定义 v3
-// 基于 4 维度：A/I（分析/直觉）、R/T（关系/任务）、C/B（竞争/合作）、D/P（防御/开拓）
+// 采购谈判风格测试 - 16 种风格定义（昵称 + 16 动物 + 稀缺性）
 
 var styles = {
-    // AR 开头（分析型 + 关系导向）
+    // AR 象限：分析 + 关系
     ARCD: {
         animal: '🦉',
         name: '战略架构师',
+        nickname: '数据军师',
         role: '用数据构建战略，用关系维护生态',
         mbti: 'ISTJ · 检查者型',
-        percent: '约占人群的 12%'
+        percent: '约占人群的 12%',
+        rarity: 'N·经典款',
+        superpower: '数据之眼 Lv.7',
+        contrast: '比你务实的没你懂战略，比你战略的没你务实',
+        timeValue: '时间会证明：靠谱的人，路越走越宽',
+        workplace: '老板最信赖的军师型，每个高管都想拥有一个你',
+        celebrity: '诸葛亮同款思维模式——运筹帷幄之中，决胜千里之外',
+        valuation: '稳健级（团队标配）'
     },
     ARCP: {
-        animal: '🦉',
+        animal: '🐘',
         name: '关系建筑师',
+        nickname: '关系达人',
         role: '用数据支撑关系，用合作建立信任',
         mbti: 'ISFJ · 保护者型',
-        percent: '约占人群的 10%'
+        percent: '约占人群的 10%',
+        rarity: 'N·经典款',
+        superpower: '信任桥梁 Lv.7',
+        contrast: '比你专业的没你懂人情，比你人情的没你专业',
+        timeValue: '时间会证明：关系是资产，越存越值钱',
+        workplace: '合作方的首选，既能发现机会又能维护关系的双料人才',
+        celebrity: '像《琅琊榜》里的言豫津——温和但有原则，人缘好但不站队',
+        valuation: '天使级（早期价值已显现）'
     },
     ARBD: {
-        animal: '🦉',
+        animal: '🦊',
         name: '创新探索者',
+        nickname: '风险侦探',
         role: '用分析评估风险，用直觉探索机会',
         mbti: 'INFJ · 咨询师型',
-        percent: '约占人群的 8%'
+        percent: '约占人群的 8%',
+        rarity: 'R·稀有款',
+        superpower: '风险雷达 Lv.8',
+        contrast: '比你大胆的没你谨慎，比你谨慎的没你大胆',
+        timeValue: '时间会证明：敢想又敢算的人，不会输',
+        workplace: '团队里的风险顾问，能发现别人忽略的隐患',
+        celebrity: '像《神探夏洛克》里的福尔摩斯——细节决定成败',
+        valuation: 'R 级（稀有人才）'
     },
     ARBP: {
-        animal: '🦉',
+        animal: '🐜',
         name: '团队推动者',
+        nickname: '流程管家',
         role: '用分析优化流程，用合作推动执行',
         mbti: 'ENFJ · 教导者型',
-        percent: '约占人群的 11%'
+        percent: '约占人群的 11%',
+        rarity: 'N·经典款',
+        superpower: '流程优化 Lv.7',
+        contrast: '比你聪明的没你务实，比你务实的没你聪明',
+        timeValue: '时间会证明：能把事做成的人，永远稀缺',
+        workplace: '团队里的定海神针，能把事做成的人永远稀缺',
+        reverse: '不适合：需要快速决策的场合 | 适合：需要有人优化流程、推动执行的场合',
+        level: '专家级：超越 90% 的同行，已是行业专家'
     },
     
-    // AT 开头（分析型 + 任务导向）
+    // AT 象限：分析 + 任务
     ATCD: {
         animal: '🦅',
         name: '市场洞察者',
+        nickname: '市场猎手',
         role: '用数据洞察市场，用竞争赢得优势',
         mbti: 'INTJ · 战略家型',
-        percent: '约占人群的 9%'
+        percent: '约占人群的 9%',
+        rarity: 'R·稀有款',
+        superpower: '市场预判 Lv.8',
+        contrast: '比你敏锐的没你懂数据，比你懂数据的没你敏锐',
+        timeValue: '时间会证明：看得远的人，走得也远',
+        workplace: '市场上稀缺的洞察型，每个战略团队都需要一个你',
+        celebrity: '像《孙子兵法》里的谋士——知己知彼，百战不殆',
+        valuation: 'A 轮级（高潜力人才）'
     },
     ATCP: {
-        animal: '🦅',
+        animal: '🦁',
         name: '快速决策者',
+        nickname: '拍板侠',
         role: '用分析支持决策，用执行达成目标',
         mbti: 'ENTJ · 指挥官型',
-        percent: '约占人群的 7%'
+        percent: '约占人群的 7%',
+        rarity: 'SR·史诗款',
+        superpower: '果断裁决 Lv.9',
+        contrast: '比你快的没你准，比你准的没你快',
+        timeValue: '时间会证明：敢拍板的人，值得托付',
+        workplace: '团队里的主心骨，关键时刻能拍板的人',
+        celebrity: '像《穿 Prada 的女魔头》里的米兰达——决断力就是生产力',
+        valuation: 'SR 级（史诗人才）'
     },
     ATBD: {
-        animal: '🦅',
+        animal: '🐬',
         name: '逻辑架构师',
+        nickname: '逻辑控',
         role: '用逻辑构建体系，用创新优化流程',
         mbti: 'INTP · 逻辑学家型',
-        percent: '约占人群的 6%'
+        percent: '约占人群的 6%',
+        rarity: 'SR·史诗款',
+        superpower: '逻辑结界 Lv.9',
+        contrast: '比你聪明的没你讲逻辑，比你讲逻辑的没你聪明',
+        timeValue: '时间会证明：清醒的人，永远不会错得太离谱',
+        workplace: '既能讲逻辑又能创新的六边形战士，团队里的定海神针',
+        reverse: '不适合：需要快速执行的场合 | 适合：需要有人构建体系、梳理逻辑的场合',
+        level: '专家级：超越 90% 的同行，已是行业专家'
     },
     ATBP: {
-        animal: '🦅',
+        animal: '⚡',
         name: '效率优化师',
+        nickname: '效率狂人',
         role: '用分析提升效率，用合作优化结果',
         mbti: 'ESTJ · 监督者型',
-        percent: '约占人群的 10%'
+        percent: '约占人群的 10%',
+        rarity: 'N·经典款',
+        superpower: '效率加速 Lv.7',
+        contrast: '比你快的没你好，比你好的没你快',
+        timeValue: '时间会证明：又快又好的人，是团队的宝藏',
+        workplace: '市场上稀缺的效率型人才，一个人顶两个人用',
+        reverse: '不适合：需要深思熟虑的场合 | 适合：需要快速响应、高效执行的场合',
+        level: '专家级：超越 90% 的同行，已是行业专家'
     },
     
-    // IR 开头（直觉型 + 关系导向）
+    // IR 象限：直觉 + 关系
     IRCD: {
-        animal: '🦊',
+        animal: '🦋',
         name: '数据驱动者',
+        nickname: '直觉玩家',
         role: '用直觉发现机会，用数据验证判断',
         mbti: 'ENFP · 倡导者型',
-        percent: '约占人群的 8%'
+        percent: '约占人群的 8%',
+        rarity: 'R·稀有款',
+        superpower: '直觉验证 Lv.8',
+        contrast: '比你敢想的没你敢验证，比你敢验证的没你敢想',
+        timeValue: '时间会证明：有直觉又有数据的人，不会差',
+        tags: '#直觉玩家 #数据验证 #人间清醒'
     },
     IRCP: {
-        animal: '🦊',
+        animal: '🐱',
         name: '机会捕捉者',
+        nickname: '机会捕手',
         role: '用直觉捕捉机会，用关系实现价值',
         mbti: 'INFP · 治愈者型',
-        percent: '约占人群的 7%'
+        percent: '约占人群的 7%',
+        rarity: 'SR·史诗款',
+        superpower: '机会嗅觉 Lv.9',
+        contrast: '比你关系好的没你懂机会，比你懂机会的没你关系好',
+        timeValue: '时间会证明：能抓住机会的人，运气都不会太差',
+        workplace: '既能发现机会又能维护关系的双料人才',
+        celebrity: '像《华尔街之狼》里的贝尔福特——机会就是金钱',
+        valuation: 'SR 级（史诗人才）'
     },
     IRBD: {
-        animal: '🦊',
+        animal: '🐝',
         name: '果断执行者',
+        nickname: '人脉王',
         role: '用直觉判断方向，用关系推动执行',
         mbti: 'ESFJ · 供应者型',
-        percent: '约占人群的 9%'
+        percent: '约占人群的 9%',
+        rarity: 'R·稀有款',
+        superpower: '人脉加速 Lv.8',
+        contrast: '比你果断的没你有人脉，比你有人脉的没你果断',
+        timeValue: '时间会证明：能成事的人，都是行动派',
+        workplace: '能成事的人，都是行动派——市场上永远缺能落地的人',
+        celebrity: '像《亮剑》里的李云龙——狭路相逢勇者胜',
+        valuation: 'A 轮级（高潜力人才）'
     },
     IRBP: {
-        animal: '🦊',
+        animal: '🐰',
         name: '温和协调者',
+        nickname: '和事佬',
         role: '用直觉感知变化，用协调平衡各方',
         mbti: 'ISFP · 艺术家型',
-        percent: '约占人群的 8%'
+        percent: '约占人群的 8%',
+        rarity: 'R·稀有款',
+        superpower: '情绪感知 Lv.8',
+        contrast: '比你温柔的没你有原则，比你有原则的没你温柔',
+        timeValue: '时间会证明：能平衡的人，走得最远',
+        workplace: '团队里的情绪稳定器，能平衡各方的人永远稀缺',
+        reverse: '不适合：需要强硬立场的场合 | 适合：需要调解矛盾、平衡利益的场合',
+        level: '专家级：超越 90% 的同行，已是行业专家'
     },
     
-    // IT 开头（直觉型 + 任务导向）
+    // IT 象限：直觉 + 任务
     ITCD: {
-        animal: '🐺',
+        animal: '🦎',
         name: '灵活适应者',
+        nickname: '变色龙',
         role: '用直觉适应变化，用任务达成目标',
         mbti: 'ENTP · 发明家型',
-        percent: '约占人群的 6%'
+        percent: '约占人群的 6%',
+        rarity: 'SR·史诗款',
+        superpower: '环境适应 Lv.9',
+        contrast: '比你灵活的没你务实，比你务实的没你灵活',
+        timeValue: '时间会证明：能适应的人，永远有饭吃',
+        tags: '#变色龙 #适应力强 #职场生存大师'
     },
     ITCP: {
-        animal: '🐺',
+        animal: '🐒',
         name: '社交联结者',
+        nickname: '社交牛人',
         role: '用直觉感知需求，用执行联结资源',
         mbti: 'ESFP · 表演者型',
-        percent: '约占人群的 7%'
+        percent: '约占人群的 7%',
+        rarity: 'SR·史诗款',
+        superpower: '资源链接 Lv.9',
+        contrast: '比你社交的没你靠谱，比你靠谱的没你社交',
+        timeValue: '时间会证明：能联结资源的人，永远不会缺机会',
+        tags: '#社交牛人 #资源链接 #人脉王'
     },
     ITBD: {
-        animal: '🐺',
+        animal: '🐢',
         name: '谨慎守护者',
+        nickname: '守门员',
         role: '用直觉评估风险，用任务守护底线',
         mbti: 'ISTP · 手艺人型',
-        percent: '约占人群的 5%'
+        percent: '约占人群的 5%',
+        rarity: 'SSR·传说款',
+        superpower: '风险预知 Lv.10',
+        contrast: '比你聪明的没你谨慎，比你谨慎的没你清醒',
+        timeValue: '时间会证明：谨慎的人，是团队最后的防线',
+        workplace: '市场上最难找的人才类型——谨慎的实干家，猎头圈的隐藏款',
+        celebrity: '像《长安十二时辰》里的张小敬——谨慎、专业、关键时刻靠得住',
+        valuation: '独角兽级（人才市场前 5%）'
     },
     ITBP: {
-        animal: '🐺',
+        animal: '🐎',
         name: '愿景推动者',
+        nickname: '行动派',
         role: '用直觉感知趋势，用执行推动愿景',
         mbti: 'ESTP · 企业家型',
-        percent: '约占人群的 6%'
+        percent: '约占人群的 6%',
+        rarity: 'SR·史诗款',
+        superpower: '趋势感知 Lv.9',
+        contrast: '比你看得远的没你落地，比你落地的没你看得远',
+        timeValue: '时间会证明：既能看远方又能走路的人，是领航者',
+        tags: '#行动派 #愿景落地 #领航者'
     }
 };
+
+// 暴露到全局
+window.styles = styles;
+console.log('✅ 16 种风格定义已加载（昵称 +16 动物 + 稀缺性）');
