@@ -116,8 +116,8 @@ var styles = {
     },
     ITBP: {
         animal: '🐺',
-        name: '魅力影响者',
-        role: '用直觉感知趋势，用执行影响结果',
+        name: '愿景推动者',
+        role: '用直觉感知趋势，用执行推动愿景',
         mbti: 'ESTP · 企业家型',
         percent: '约占人群的 6%'
     }

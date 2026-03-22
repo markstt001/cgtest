@@ -405,7 +405,7 @@ const bestMatchDeep = {
 
   ITBD: {
     match: "IRCP",
-    matchName: "愿景推动者",
+    matchName: "关系联结者",
     why: `
 你负责「创新和竞争」，他负责「愿景和合作」。
 你容易埋头，他帮你抬头。

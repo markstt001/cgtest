@@ -28,7 +28,7 @@ if (typeof window.styleDefinitions === 'undefined') {
     ATBD: { name: "独立判断者", animal: "🦅", dimension: "分析 + 任务 + 合作 + 防御" },
     ATBP: { name: "务实协调者", animal: "🦅", dimension: "分析 + 任务 + 合作 + 开拓" },
     IRCD: { name: "创新开拓者", animal: "🦊", dimension: "直觉 + 关系 + 竞争 + 防御" },
-    IRCP: { name: "愿景推动者", animal: "🦊", dimension: "直觉 + 关系 + 竞争 + 开拓" },
+    IRCP: { name: "关系联结者", animal: "🦊", dimension: "直觉 + 关系 + 竞争 + 开拓" },
     IRBD: { name: "人脉冒险家", animal: "🦊", dimension: "直觉 + 关系 + 合作 + 防御" },
     IRBP: { name: "信任 builder", animal: "🦊", dimension: "直觉 + 关系 + 合作 + 开拓" },
     ITCD: { name: "数据猎手", animal: "🐺", dimension: "直觉 + 任务 + 竞争 + 防御" },
