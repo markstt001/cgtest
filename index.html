@@ -426,17 +426,17 @@
     
     <canvas id="posterCanvas" style="display: none;"></canvas>
     
-    <script src="poster-themes.js?v=202603220920"></script>
-    <script src="questions-v4.js?v=202603220920"></script>
-    <script src="styles-v3.js?t=202603220920"></script>
-    <script src="personalized-interpretation-v4.js?v=202603220920"></script>
-    <script src="enhanced-weaknesses-v2.js?v=202603220920"></script>
-    <script src="celebrity-stories.js?v=202603220920"></script>
-    <script src="mystery-tags.js?v=202603220920"></script>
-    <script src="best-match-deep.js?v=202603220920"></script>
-    <script src="cooperation-guides.js?v=202603220920"></script>
-    <script src="team-report.js?v=202603220920"></script>
-    <script src="result-enhanced.js?v=202603220920"></script>
+    <script src="poster-themes.js?v=202603220927"></script>
+    <script src="questions-v4.js?v=202603220927"></script>
+    <script src="styles-v3.js?t=202603220927"></script>
+    <script src="personalized-interpretation-v4.js?v=202603220927"></script>
+    <script src="enhanced-weaknesses-v2.js?v=202603220927"></script>
+    <script src="celebrity-stories.js?v=202603220927"></script>
+    <script src="mystery-tags.js?v=202603220927"></script>
+    <script src="best-match-deep.js?v=202603220927"></script>
+    <script src="cooperation-guides.js?v=202603220927"></script>
+    <script src="team-report.js?v=202603220927"></script>
+    <script src="result-enhanced.js?v=202603220927"></script>
     <script>
         var currentIndex = 0;
         var answers = [];
@@ -446,6 +446,10 @@
         var currentUserResult = null;
         
         function startTest() {
+            // 重置所有状态
+            currentIndex = 0;
+            answers = [];
+            dimensionScores = { A: 0, I: 0, R: 0, T: 0, C: 0, B: 0, D: 0, P: 0 };
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('testPage').classList.remove('hidden');
             document.getElementById('bottomNav').classList.add('hidden');
