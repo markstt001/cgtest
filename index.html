@@ -940,13 +940,13 @@
             }
             
             var html = '<div style="text-align:left;">';
-            html += '<div style="font-size:14px;color:#86868b;margin-bottom:15px;text-align:center;">最近 ' + history.length + ' 次测试记录</div>';
+            html += '<div style="font-size:14px;color:#86868b;margin-bottom:15px;text-align:center;">最近 ' + history.length + ' 次测试记录（点击查看详情）</div>';
             for (var i = 0; i < history.length; i++) {
                 var item = history[i];
                 var date = new Date(item.timestamp).toLocaleString('zh-CN');
                 var style = styles[item.code];
                 var isFirst = (i === 0);
-                html += '<div style="padding:15px;margin:8px 0;background:' + (isFirst ? 'rgba(212,175,55,0.15)' : 'rgba(32,58,67,0.6)') + ';border-radius:12px;border-left:4px solid ' + (isFirst ? '#d4af37' : '#3a6a7a') + ';">';
+                html += '<div style="padding:15px;margin:8px 0;background:' + (isFirst ? 'rgba(212,175,55,0.15)' : 'rgba(32,58,67,0.6)') + ';border-radius:12px;border-left:4px solid ' + (isFirst ? '#d4af37' : '#3a6a7a') + ';cursor:pointer;" onclick="showHistoryDetail(\'' + item.code + '\')">';
                 html += '<div style="display:flex;align-items:center;gap:15px;">';
                 html += '<div style="font-size:40px;">' + (style ? style.animal : '') + '</div>';
                 html += '<div style="flex:1;">';
@@ -955,12 +955,32 @@
                 html += '<span style="font-size:20px;font-weight:700;color:#fff;">' + item.code + '</span>';
                 html += '<span style="font-size:14px;color:#cccccc;">· ' + (style ? style.nickname : '') + '</span>';
                 html += '</div>';
-                html += '<div style="font-size:12px;color:#86868b;">' + date + '</div>';
+                html += '<div style="font-size:12px;color:#86868b;">' + date + ' <span style="color:#d4af37;">› 查看详情</span></div>';
                 html += '</div></div></div>';
             }
             html += '</div>';
             
             showModal('📜 测试历史', html);
+        }
+        
+        // 显示历史报告详情
+        function showHistoryDetail(code) {
+            var style = styles[code];
+            if (!style) return;
+            
+            var html = '<div style="text-align:center;padding:20px;">';
+            html += '<div style="font-size:80px;margin-bottom:15px;">' + style.animal + '</div>';
+            html += '<div style="font-size:36px;font-weight:800;color:#d4af37;letter-spacing:4px;margin-bottom:10px;">' + code + '</div>';
+            html += '<div style="font-size:20px;font-weight:600;color:#ffffff;margin-bottom:8px;">' + style.nickname + '</div>';
+            html += '<div style="font-size:14px;color:#cccccc;margin-bottom:20px;">' + style.role + '</div>';
+            html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:20px;border-radius:12px;margin-top:20px;">';
+            html += '<div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:12px;">🎯 核心特质</div>';
+            html += '<div style="line-height:1.8;color:#cccccc;">' + style.mbti + '</div>';
+            html += '</div>';
+            html += '<button class="btn-action" onclick="document.querySelectorAll(\'.modal\').forEach(m=>m.remove());" style="margin-top:20px;">关闭</button>';
+            html += '</div>';
+            
+            showModal('📋 报告详情', html);
         }
         
         // 查看合作指南
@@ -1000,16 +1020,44 @@
                 var guide = getCooperationGuide(code1, code2);
                 var s1 = styles[code1];
                 var s2 = styles[code2];
-                var html = '<div style="line-height:1.8;color:#ffffff;">';
-                html += '<div style="font-size:16px;font-weight:700;margin-bottom:15px;color:#d4af37;">' + s1.nickname + ' × ' + s2.nickname + '</div>';
-                // guide 是对象，需要显示 solution 字段
-                if (typeof guide === 'object' && guide.solution) {
-                    html += '<div style="white-space:pre-line;">' + guide.solution + '</div>';
+                
+                var html = '<div style="text-align:center;padding:10px;">';
+                html += '<div style="font-size:50px;margin:15px 0;">' + s1.animal + ' <span style="font-size:30px;color:#d4af37;">🤝</span> ' + s2.animal + '</div>';
+                html += '<div style="font-size:20px;font-weight:700;color:#d4af37;margin-bottom:8px;">' + code1 + ' <span style="color:#ffffff;">×</span> ' + code2 + '</div>';
+                html += '<div style="font-size:16px;font-weight:600;color:#ffffff;margin-bottom:20px;">' + s1.nickname + ' <span style="color:#86868b;">×</span> ' + s2.nickname + '</div>';
+                
+                // guide 是对象，包含多个字段
+                if (typeof guide === 'object') {
+                    if (guide.analysis) {
+                        html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:15px;border-radius:12px;margin-bottom:12px;">';
+                        html += '<div style="font-size:13px;color:#d4af37;margin-bottom:8px;font-weight:600;">🔍 风格分析</div>';
+                        html += '<div style="line-height:1.6;color:#cccccc;font-size:13px;white-space:pre-line;">' + guide.analysis + '</div>';
+                        html += '</div>';
+                    }
+                    if (guide.challenge) {
+                        html += '<div style="text-align:left;background:rgba(212,175,55,0.1);padding:15px;border-radius:12px;margin-bottom:12px;border-left:3px solid #d4af37;">';
+                        html += '<div style="font-size:13px;color:#d4af37;margin-bottom:8px;font-weight:600;">⚠️ 潜在挑战</div>';
+                        html += '<div style="line-height:1.6;color:#cccccc;font-size:13px;white-space:pre-line;">' + guide.challenge + '</div>';
+                        html += '</div>';
+                    }
+                    if (guide.solution) {
+                        html += '<div style="text-align:left;background:rgba(16,185,129,0.1);padding:15px;border-radius:12px;margin-bottom:12px;border-left:3px solid #10b981;">';
+                        html += '<div style="font-size:13px;color:#10b981;margin-bottom:8px;font-weight:600;">✅ 合作方案</div>';
+                        html += '<div style="line-height:1.6;color:#cccccc;font-size:13px;white-space:pre-line;">' + guide.solution + '</div>';
+                        html += '</div>';
+                    }
+                    if (guide.quote) {
+                        html += '<div style="text-align:left;background:rgba(59,130,246,0.1);padding:15px;border-radius:12px;border-left:3px solid #3b82f6;">';
+                        html += '<div style="font-size:13px;color:#3b82f6;margin-bottom:8px;font-weight:600;">💬 合作金句</div>';
+                        html += '<div style="line-height:1.6;color:#cccccc;font-size:13px;font-style:italic;">"' + guide.quote + '"</div>';
+                        html += '</div>';
+                    }
                 } else if (typeof guide === 'string') {
-                    html += '<div>' + guide + '</div>';
+                    html += '<div style="text-align:left;line-height:1.8;color:#cccccc;">' + guide + '</div>';
                 } else {
                     html += '<div style="color:#86868b;">暂无合作指南数据</div>';
                 }
+                
                 html += '</div>';
                 // 关闭之前的弹窗
                 var modal = document.querySelector('.modal');
@@ -1037,7 +1085,8 @@
                 var html = '<div style="text-align:center;">';
                 html += '<div style="font-size:20px;font-weight:700;color:#d4af37;margin-bottom:20px;">✨ 天生绝配 ✨</div>';
                 html += '<div style="font-size:70px;margin:20px 0;">' + s.animal + '<span style="font-size:40px;margin:0 15px;">❤️</span>' + (matchStyle ? matchStyle.animal : '') + '</div>';
-                html += '<div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px;">' + s.nickname + ' <span style="color:#d4af37;">×</span> ' + match.matchName + '</div>';
+                html += '<div style="font-size:24px;font-weight:800;color:#d4af37;margin-bottom:8px;">' + r.code + ' <span style="color:#ffffff;">×</span> ' + match.match + '</div>';
+                html += '<div style="font-size:18px;font-weight:600;color:#ffffff;margin-bottom:10px;">' + s.nickname + ' <span style="color:#d4af37;">×</span> ' + match.matchName + '</div>';
                 html += '<div style="font-size:14px;color:#86868b;margin-bottom:20px;">' + (matchStyle ? matchStyle.role : '') + '</div>';
                 html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:20px;border-radius:12px;margin-bottom:15px;">';
                 html += '<div style="font-size:14px;color:#d4af37;margin-bottom:10px;font-weight:600;">💡 为什么是绝配</div>';
