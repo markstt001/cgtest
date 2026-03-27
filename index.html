@@ -354,23 +354,79 @@
         
         <!-- 我的页面 -->
         <div id="myPage" class="hidden">
-            <div style="padding: 30px 20px 20px; text-align: center;">
+            <div style="padding: 30px 20px 20px; text-align: center; background: linear-gradient(135deg, #0f2027, #203a43); border-bottom: 2px solid #d4af37;">
                 <h1 style="font-size: 32px; font-weight: 700; color: #ffffff; margin: 0;">我的</h1>
             </div>
-            <div class="result-content" style="padding-top: 10px;">
+            <div class="result-content" style="padding-top: 0;">
+                <!-- 风格画像卡片 -->
+                <div id="profileCard" class="card" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-title">🎭 我的谈判风格</div>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: 30px 20px;">
+                        <div id="profileAnimal" style="font-size: 80px; margin-bottom: 10px;"></div>
+                        <div id="profileCode" style="font-size: 36px; font-weight: 800; color: #d4af37; letter-spacing: 4px; margin-bottom: 8px;"></div>
+                        <div id="profileNickname" style="font-size: 20px; font-weight: 600; color: #ffffff; margin-bottom: 10px;"></div>
+                        <div id="profileTrait" style="font-size: 14px; color: #cccccc; line-height: 1.6;"></div>
+                    </div>
+                </div>
+                
+                <!-- 快速功能入口 -->
+                <div id="quickActions" class="card" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-title">⚡ 快速功能</div>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                            <button class="partner-btn" onclick="showHistory()" style="width: 100%;">
+                                📜 历史报告
+                                <span>查看测试记录</span>
+                            </button>
+                            <button class="partner-btn" onclick="viewCooperationGuide()" style="width: 100%;">
+                                📖 合作指南
+                                <span>如何与他人合作</span>
+                            </button>
+                            <button class="partner-btn" onclick="showBestMatch()" style="width: 100%;">
+                                🤝 最佳拍档
+                                <span>谁是你的绝配</span>
+                            </button>
+                            <button class="partner-btn" onclick="shareResult()" style="width: 100%;">
+                                📤 分享海报
+                                <span>生成分享海报</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 我的测试结果 -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">📊 我的测试结果</div>
+                        <div class="card-title">📊 测试结果</div>
                     </div>
                     <div class="card-body" id="myResult"></div>
                 </div>
+                
+                <!-- 我的团队 -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">👥 我的团队</div>
                     </div>
                     <div class="card-body" id="myTeam"></div>
                 </div>
-                <button class="btn-action btn-secondary" onclick="clearAllData()" style="margin-top: 24px;">清除所有数据</button>
+                
+                <!-- 课程推荐 -->
+                <div class="course-card">
+                    <div class="course-name">决胜供应链·谈判力</div>
+                    <div class="course-teacher">姜宏锋老师亲授</div>
+                    <div style="font-size: 14px; color: #cccccc; margin: 12px 0; line-height: 1.6;">
+                        从供应商选择到价格谈判，从合同管理到绩效评估，全面提升供应链谈判能力
+                    </div>
+                    <div class="course-price">¥ 1980</div>
+                    <button class="course-btn" onclick="window.open('https://youliantang.com', '_blank')">立即学习</button>
+                </div>
+                
+                <!-- 危险操作 -->
+                <button class="btn-action btn-secondary" onclick="clearAllData()" style="margin-top: 24px;">🗑️ 清除所有数据</button>
             </div>
         </div>
     </div>
@@ -592,6 +648,12 @@
             currentResult = { code: code, style: style, interpretation: interpretation, weaknesses: weaknesses, tags: tags, story: story };
             currentUserResult = { code: code, style: style };
             localStorage.setItem('myTestResult', JSON.stringify(currentUserResult));
+            
+            // 保存到测试历史
+            var history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+            history.unshift({ code: code, style: { animal: style.animal, name: style.name, nickname: style.nickname }, timestamp: Date.now() });
+            if (history.length > 10) history = history.slice(0, 10); // 只保留最近 10 次
+            localStorage.setItem('testHistory', JSON.stringify(history));
             
             document.getElementById('resultAnimal').textContent = style.animal;
             document.getElementById('resultCode').textContent = code;
@@ -844,9 +906,26 @@
             var savedResult = localStorage.getItem('myTestResult');
             if (savedResult) {
                 var r = JSON.parse(savedResult);
-                document.getElementById('myResult').innerHTML = '<div style="font-size:50px;text-align:center;margin:25px 0;">' + (styles[r.code] ? styles[r.code].animal : '') + '</div><div style="text-align:center;font-size:28px;font-weight:700;color:#fff;">' + r.code + '</div><div style="text-align:center;color:#86868b;font-size:16px;">' + r.style.name + '</div>';
+                var style = styles[r.code];
+                
+                // 更新风格画像卡片
+                if (style) {
+                    document.getElementById('profileCard').style.display = 'block';
+                    document.getElementById('profileAnimal').textContent = style.animal;
+                    document.getElementById('profileCode').textContent = r.code;
+                    document.getElementById('profileNickname').textContent = style.nickname;
+                    document.getElementById('profileTrait').textContent = style.role;
+                    
+                    // 显示快速功能入口
+                    document.getElementById('quickActions').style.display = 'block';
+                }
+                
+                // 更新测试结果卡片
+                document.getElementById('myResult').innerHTML = '<div style="font-size:50px;text-align:center;margin:25px 0;">' + style.animal + '</div><div style="text-align:center;font-size:28px;font-weight:700;color:#fff;">' + r.code + '</div><div style="text-align:center;color:#86868b;font-size:16px;">' + style.name + '</div><div style="text-align:center;color:#cccccc;font-size:14px;margin-top:10px;">' + style.role + '</div>';
             } else {
-                document.getElementById('myResult').innerHTML = '<div style="text-align:center;color:#86868b;padding:40px;">暂无测试结果</div>';
+                document.getElementById('profileCard').style.display = 'none';
+                document.getElementById('quickActions').style.display = 'none';
+                document.getElementById('myResult').innerHTML = '<div style="text-align:center;color:#86868b;padding:40px;">暂无测试结果<br><span style="font-size:13px;">完成测试后查看你的谈判风格画像</span></div>';
             }
             
             var savedTeam = localStorage.getItem('currentTeam');
@@ -854,8 +933,134 @@
                 var t = JSON.parse(savedTeam);
                 document.getElementById('myTeam').innerHTML = '<div style="font-size:18px;font-weight:600;margin-bottom:10px;color:#fff;">' + t.name + '</div><div style="color:#86868b;">邀请码：' + t.inviteCode + '</div>';
             } else {
-                document.getElementById('myTeam').innerHTML = '<div style="text-align:center;color:#86868b;padding:40px;">暂无团队</div>';
+                document.getElementById('myTeam').innerHTML = '<div style="text-align:center;color:#86868b;padding:40px;">暂无团队<br><span style="font-size:13px;">创建或加入团队，对比团队成员的谈判风格</span></div>';
             }
+        }
+        
+        // 显示历史报告
+        function showHistory() {
+            var history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+            if (history.length === 0) {
+                alert('暂无历史测试记录\n\n完成测试后，历史记录会自动保存');
+                return;
+            }
+            
+            var html = '<div style="text-align:left;max-height:400px;overflow-y:auto;">';
+            html += '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:15px;">📜 测试历史（最近' + history.length + '次）</div>';
+            for (var i = 0; i < history.length; i++) {
+                var item = history[i];
+                var date = new Date(item.timestamp).toLocaleString('zh-CN');
+                var style = styles[item.code];
+                html += '<div style="padding:12px;margin:8px 0;background:rgba(32,58,67,0.6);border-radius:8px;border-left:3px solid #d4af37;">';
+                html += '<div style="display:flex;align-items:center;gap:12px;">';
+                html += '<div style="font-size:32px;">' + (style ? style.animal : '') + '</div>';
+                html += '<div style="flex:1;">';
+                html += '<div style="font-size:18px;font-weight:700;color:#fff;">' + item.code + ' · ' + (style ? style.nickname : '') + '</div>';
+                html += '<div style="font-size:12px;color:#86868b;">' + date + '</div>';
+                html += '</div></div></div>';
+            }
+            html += '</div>';
+            
+            showModal('📜 测试历史', html);
+        }
+        
+        // 查看合作指南
+        function viewCooperationGuide() {
+            var savedResult = localStorage.getItem('myTestResult');
+            if (!savedResult) {
+                alert('请先完成测试');
+                return;
+            }
+            var r = JSON.parse(savedResult);
+            
+            // 显示 16 风格选择弹窗
+            var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+            var partners = ['ARCD','ARCP','ARBD','ARBP','ATCD','ATCP','ATBD','ATBP','IRCD','IRCP','IRBD','IRBP','ITCD','ITCP','ITBD','ITBP'];
+            for (var i = 0; i < partners.length; i++) {
+                var p = partners[i];
+                var s = styles[p];
+                html += '<button class="partner-btn" onclick="showCooperationGuide(\'' + r.code + '\',\'' + p + '\')" style="padding:10px 6px;font-size:12px;">';
+                html += s.animal + '<br><span style="font-size:10px;">' + p + '</span></button>';
+            }
+            html += '</div>';
+            showModal('📖 选择合作风格', html);
+        }
+        
+        // 显示合作指南
+        function showCooperationGuide(code1, code2) {
+            if (typeof getCooperationGuide === 'function') {
+                var guide = getCooperationGuide(code1, code2);
+                var s1 = styles[code1];
+                var s2 = styles[code2];
+                var html = '<div style="line-height:1.8;color:#ffffff;">';
+                html += '<div style="font-size:16px;font-weight:700;margin-bottom:15px;color:#d4af37;">' + s1.nickname + ' × ' + s2.nickname + '</div>';
+                html += '<div>' + guide + '</div>';
+                html += '</div>';
+                // 关闭之前的弹窗
+                var modal = document.querySelector('.modal');
+                if (modal) modal.remove();
+                showModal('📖 合作指南', html);
+            } else {
+                alert('合作指南数据加载中...');
+            }
+        }
+        
+        // 显示最佳拍档
+        function showBestMatch() {
+            var savedResult = localStorage.getItem('myTestResult');
+            if (!savedResult) {
+                alert('请先完成测试');
+                return;
+            }
+            var r = JSON.parse(savedResult);
+            
+            // 调用 16 风格矩阵（如果存在）
+            if (typeof window.selectPartnerCode === 'function') {
+                // 显示提示，引导用户使用矩阵
+                var html = '<div style="text-align:center;padding:20px;">';
+                html += '<div style="font-size:40px;margin-bottom:15px;">🔮</div>';
+                html += '<div style="color:#ffffff;font-size:15px;margin-bottom:20px;">点击 16 风格矩阵中的任意风格<br>查看与你的最佳搭档分析</div>';
+                html += '<button class="btn-action" onclick="document.querySelector(\'.modal\')?.remove();goHome();showResultPage();">前往结果页查看</button>';
+                html += '</div>';
+                showModal('🤝 最佳拍档', html);
+            } else {
+                alert('最佳拍档功能加载中...');
+            }
+        }
+        
+        // 显示结果页（用于从我的页面跳转）
+        function showResultPage() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('testPage').classList.add('hidden');
+            document.getElementById('myPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+        }
+        
+        // 分享海报
+        function shareResult() {
+            var savedResult = localStorage.getItem('myTestResult');
+            if (!savedResult) {
+                alert('请先完成测试');
+                return;
+            }
+            
+            // 调用海报生成函数
+            if (typeof generatePoster === 'function') {
+                generatePoster();
+            } else {
+                alert('海报生成功能加载中...');
+            }
+        }
+        
+        // 通用弹窗函数
+        function showModal(title, content) {
+            var modalHtml = '<div id="customModal" class="modal" onclick="if(event.target===this) this.remove();">';
+            modalHtml += '<div class="modal-content" style="max-width:500px;text-align:left;">';
+            modalHtml += '<div class="modal-title" style="margin-bottom:20px;">' + title + '</div>';
+            modalHtml += content;
+            modalHtml += '<button class="modal-btn" onclick="document.getElementById(\'customModal\').remove();" style="margin-top:20px;">关闭</button>';
+            modalHtml += '</div></div>';
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
         
         // 团队配置报告功能
