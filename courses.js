@@ -6,45 +6,37 @@ const courseDatabase = [
     id: 1,
     name: "《采购降本和双赢谈判+AI 应用》",
     teacher: "优链学堂 · 线下课",
-    price: "¥5,800",
-    priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=5",
     matchStyles: ["ARCD", "ARBP", "ATCD", "ATBD"],
     matchReason: "数据分析与谈判技巧融合，AI 赋能降本增效",
-    scenarios: ["供应商谈判", "成本分析", "合同管理", "数字化建设"]
+    cta: "🔥 立即报名，提升谈判力"
   },
   {
     id: 2,
     name: "《决胜供应链》",
     teacher: "优链学堂 · 线下课",
-    price: "¥5,800",
-    priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=4",
     matchStyles: ["ATCD", "ATCP", "ITCD", "ITCP"],
     matchReason: "提升谈判博弈能力，争取最大利益",
-    scenarios: ["价格谈判", "合同谈判", "冲突处理", "利益争取"]
+    cta: "🔥 立即报名，掌握谈判主动权"
   },
   {
     id: 3,
     name: "《供应商管理》",
     teacher: "优链学堂 · 线下课",
-    price: "¥5,800",
-    priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=8",
     matchStyles: ["ARCP", "ARBP", "IRCP", "IRBP"],
     matchReason: "关系维护与竞争平衡，战略供应商管理",
-    scenarios: ["供应商选择", "绩效管理", "关系维护", "战略合作"]
+    cta: "🔥 立即报名，构建供应商体系"
   },
   {
     id: 4,
     name: "《品类管理》",
     teacher: "优链学堂 · 线下课",
-    price: "¥5,800",
-    priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=12",
     matchStyles: ["ARCD", "ATCD", "ARBD", "ATBD"],
     matchReason: "系统化品类策略，数据分析驱动决策",
-    scenarios: ["品类规划", "采购策略", "市场分析", "资源配置"]
+    cta: "🔥 立即报名，掌握品类策略"
   }
 ];
 
@@ -172,7 +164,6 @@ function renderCourses(styleCode) {
   var matched = getMatchedCourses(styleCode);
   if (matched.length === 0) return;
   
-  // 只取前 2 门最匹配的课程
   var topCourses = matched.slice(0, 2);
   
   var html = '<div style="background:linear-gradient(135deg,rgba(15,32,39,0.9),rgba(32,58,67,0.9));padding:20px;border-radius:12px;margin-top:20px;border:1px solid #d4af37;">';
@@ -181,13 +172,10 @@ function renderCourses(styleCode) {
   for (var i = 0; i < topCourses.length; i++) {
     var course = topCourses[i].course;
     html += '<div onclick="window.open(\'' + course.url + '\', \'_blank\')" style="background:rgba(44,83,100,0.3);padding:16px;border-radius:10px;margin-bottom:14px;cursor:pointer;border:1px solid rgba(212,175,55,0.3);transition:all 0.3s;" onmouseover="this.style.background=\'rgba(44,83,100,0.5)\'" onmouseout="this.style.background=\'rgba(44,83,100,0.3)\'">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-    html += '<div style="font-size:15px;font-weight:700;color:#fff;">' + course.name + '</div>';
-    html += '<div style="font-size:16px;font-weight:800;color:#d4af37;">' + course.price + '</div>';
-    html += '</div>';
-    html += '<div style="font-size:12px;color:#86868b;margin-bottom:8px;">👨‍🏫 ' + course.teacher + ' · ' + course.priceUnit + '</div>';
-    html += '<div style="font-size:12px;color:#cccccc;margin-bottom:10px;line-height:1.6;">✅ ' + course.matchReason + '</div>';
-    html += '<div style="font-size:11px;color:#d4af37;font-weight:600;">🔗 点击查看详情 ›</div>';
+    html += '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;">' + course.name + '</div>';
+    html += '<div style="font-size:12px;color:#86868b;margin-bottom:10px;">👨‍🏫 ' + course.teacher + '</div>';
+    html += '<div style="font-size:12px;color:#cccccc;margin-bottom:12px;line-height:1.6;">✅ ' + course.matchReason + '</div>';
+    html += '<div style="font-size:13px;color:#d4af37;font-weight:600;">' + course.cta + ' ›</div>';
     html += '</div>';
   }
   
