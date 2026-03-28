@@ -643,6 +643,36 @@ function unlockTeamReport() {
     goToMyPage();
 }
 
+// 快速体验 - 生成示例团队
+function quickDemoTeam() {
+    var demoTeam = {
+        name: '示例团队 - 采购精英队',
+        leader: '粒子',
+        inviteCode: 'DEMO' + Math.floor(Math.random() * 10000),
+        createdAt: new Date().toISOString(),
+        members: [
+            { name: '张三', code: 'ARCD', completed: true, styleName: '数据军师' },
+            { name: '李四', code: 'ITCP', completed: true, styleName: '社交牛人' },
+            { name: '王五', code: 'ARBP', completed: true, styleName: '流程管家' },
+            { name: '赵六', code: 'ATCD', completed: true, styleName: '市场猎手' },
+            { name: '钱七', code: 'IRCD', completed: true, styleName: '直觉玩家' }
+        ]
+    };
+    localStorage.setItem('currentTeam', JSON.stringify(demoTeam));
+    alert('✅ 已生成 5 人示例团队！\n\n团队成员：\n• 张三 - ARCD 数据军师 🦉\n• 李四 - ITCP 社交牛人 🐺\n• 王五 - ARBP 流程管家 🦉\n• 赵六 - ATCD 市场猎手 🦅\n• 钱七 - IRCD 直觉玩家 🦊\n\n点击"📊 团队仪表盘"查看完整分析！');
+    goToTeamDashboard();
+}
+
+// 清除团队数据
+function clearTeamData() {
+    if (confirm('确定要清除团队数据吗？\n\n这将删除：\n• 团队信息\n• 成员列表\n• 团队报告购买状态')) {
+        localStorage.removeItem('currentTeam');
+        localStorage.removeItem('teamReportPurchased');
+        alert('✅ 团队数据已清除！');
+        location.reload();
+    }
+}
+
 // 暴露到全局作用域
 if (typeof window !== 'undefined') {
     window.goToTeamDashboard = goToTeamDashboard;
@@ -653,4 +683,6 @@ if (typeof window !== 'undefined') {
     window.inviteTeamMembers = inviteTeamMembers;
     window.unlockTeamReport = unlockTeamReport;
     window.copyInviteCode = copyInviteCode;
+    window.quickDemoTeam = quickDemoTeam;
+    window.clearTeamData = clearTeamData;
 }
