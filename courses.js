@@ -181,6 +181,25 @@ function renderCourses(styleCode) {
     container.innerHTML = html;
     console.log('课程推荐已渲染到页面');
     console.log('container.innerHTML:', container.innerHTML.substring(0, 100));
+    
+    // 确保容器可见
+    container.style.display = 'block';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    
+    // 显示卡片
+    var courseCard = document.getElementById('courseCard');
+    if (courseCard) {
+      courseCard.style.display = 'block';
+      console.log('课程卡片已显示');
+    }
+    
+    // 检查父容器
+    var parent = container.parentElement;
+    if (parent) {
+      parent.style.display = 'block';
+      console.log('父容器:', parent.className, 'display:', parent.style.display);
+    }
   }, 500);
 }
 
