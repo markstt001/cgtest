@@ -658,7 +658,10 @@
             
             currentResult = { code: code, style: style, interpretation: interpretation, weaknesses: weaknesses, tags: tags, story: story };
             currentUserResult = { code: code, style: style };
-            localStorage.setItem('myTestResult', JSON.stringify(currentUserResult));
+            // 查看历史时不更新我的测试结果
+            if (!window.isViewingHistory) {
+                localStorage.setItem('myTestResult', JSON.stringify(currentUserResult));
+            }
             
             // 保存到测试历史（查看历史时不保存新记录）
             if (!window.isViewingHistory) {
@@ -681,6 +684,9 @@
             if (window.isViewingHistory) {
                 var teamSection = document.getElementById('teamSection');
                 if (teamSection) teamSection.style.display = 'none';
+                // 隐藏底部导航的团队入口（如果有）
+                var teamNav = document.querySelector('.team-nav-item');
+                if (teamNav) teamNav.style.display = 'none';
             }
             
             document.getElementById('mbtiInsight').textContent = interpretation.mbti;
@@ -860,6 +866,9 @@
             // 显示团队板块（如果之前隐藏了）
             var teamSection = document.getElementById('teamSection');
             if (teamSection) teamSection.style.display = 'block';
+            // 显示底部导航的团队入口（如果之前隐藏了）
+            var teamNav = document.querySelector('.team-nav-item');
+            if (teamNav) teamNav.style.display = 'flex';
             // 重置标志
             window.isViewingHistory = false;
         }
@@ -924,6 +933,11 @@
             document.getElementById('testPage').classList.add('hidden');
             document.getElementById('resultPage').classList.add('hidden');
             document.getElementById('myPage').classList.remove('hidden');
+            // 重置标志
+            window.isViewingHistory = false;
+            // 显示团队板块
+            var teamSection = document.getElementById('teamSection');
+            if (teamSection) teamSection.style.display = 'block';
             updateMyPage();
         }
         
