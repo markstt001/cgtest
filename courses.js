@@ -17,7 +17,7 @@ const courseDatabase = [
     id: 2,
     name: "《决胜供应链》",
     teacher: "优链学堂 · 线下课",
-    price: "咨询价",
+    price: "¥5,800",
     priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=4",
     matchStyles: ["ATCD", "ATCP", "ITCD", "ITCP"],
@@ -28,7 +28,7 @@ const courseDatabase = [
     id: 3,
     name: "《供应商管理》",
     teacher: "优链学堂 · 线下课",
-    price: "咨询价",
+    price: "¥5,800",
     priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=8",
     matchStyles: ["ARCP", "ARBP", "IRCP", "IRBP"],
@@ -39,7 +39,7 @@ const courseDatabase = [
     id: 4,
     name: "《品类管理》",
     teacher: "优链学堂 · 线下课",
-    price: "咨询价",
+    price: "¥5,800",
     priceUnit: "/ 人次",
     url: "https://www.ailianruyi.com/#/product/detail?id=12",
     matchStyles: ["ARCD", "ATCD", "ARBD", "ATBD"],
@@ -157,7 +157,6 @@ function generateCourseHTML(courses, isTeamReport) {
 function renderCourses(styleCode) {
   var container = document.getElementById('courseRecommendation');
   if (!container) {
-    // 如果没有容器，在 mbtiInsight 后面创建
     var mbtiBox = document.getElementById('mbtiInsight');
     if (mbtiBox) {
       var courseDiv = document.createElement('div');
@@ -173,17 +172,22 @@ function renderCourses(styleCode) {
   var matched = getMatchedCourses(styleCode);
   if (matched.length === 0) return;
   
-  var html = '<div style="background:linear-gradient(135deg,rgba(15,32,39,0.9),rgba(32,58,67,0.9));padding:20px;border-radius:12px;margin-top:20px;border:1px solid #d4af37;">';
-  html += '<div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:16px;">🎓 推荐课程</div>';
+  // 只取前 2 门最匹配的课程
+  var topCourses = matched.slice(0, 2);
   
-  for (var i = 0; i < Math.min(2, matched.length); i++) {
-    var course = matched[i].course;
-    html += '<div onclick="window.open(\'' + course.url + '\', \'_blank\')" style="background:rgba(44,83,100,0.3);padding:14px;border-radius:8px;margin-bottom:12px;cursor:pointer;border:1px solid rgba(212,175,55,0.3);">';
-    html += '<div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">' + course.name + '</div>';
-    html += '<div style="font-size:12px;color:#86868b;margin-bottom:6px;">👨‍🏫 ' + course.teacher + '</div>';
-    html += '<div style="font-size:12px;color:#cccccc;margin-bottom:6px;">✅ ' + course.matchReason + '</div>';
-    html += '<div style="font-size:16px;font-weight:800;color:#d4af37;">' + course.price + ' <span style="font-size:12px;color:#86868b;">' + course.priceUnit + '</span></div>';
-    html += '<div style="font-size:11px;color:#d4af37;margin-top:8px;">🔗 点击查看详情</div>';
+  var html = '<div style="background:linear-gradient(135deg,rgba(15,32,39,0.9),rgba(32,58,67,0.9));padding:20px;border-radius:12px;margin-top:20px;border:1px solid #d4af37;">';
+  html += '<div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:16px;">🎓 推荐课程 · 针对性提升</div>';
+  
+  for (var i = 0; i < topCourses.length; i++) {
+    var course = topCourses[i].course;
+    html += '<div onclick="window.open(\'' + course.url + '\', \'_blank\')" style="background:rgba(44,83,100,0.3);padding:16px;border-radius:10px;margin-bottom:14px;cursor:pointer;border:1px solid rgba(212,175,55,0.3);transition:all 0.3s;" onmouseover="this.style.background=\'rgba(44,83,100,0.5)\'" onmouseout="this.style.background=\'rgba(44,83,100,0.3)\'">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html += '<div style="font-size:15px;font-weight:700;color:#fff;">' + course.name + '</div>';
+    html += '<div style="font-size:16px;font-weight:800;color:#d4af37;">' + course.price + '</div>';
+    html += '</div>';
+    html += '<div style="font-size:12px;color:#86868b;margin-bottom:8px;">👨‍🏫 ' + course.teacher + ' · ' + course.priceUnit + '</div>';
+    html += '<div style="font-size:12px;color:#cccccc;margin-bottom:10px;line-height:1.6;">✅ ' + course.matchReason + '</div>';
+    html += '<div style="font-size:11px;color:#d4af37;font-weight:600;">🔗 点击查看详情 ›</div>';
     html += '</div>';
   }
   
