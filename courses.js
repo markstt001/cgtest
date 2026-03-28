@@ -147,21 +147,29 @@ function generateCourseHTML(courses, isTeamReport) {
 
 // 在结果页渲染课程
 function renderCourses(styleCode) {
+  console.log('renderCourses called with:', styleCode);
+  
   var container = document.getElementById('courseRecommendation');
   if (!container) {
     var mbtiBox = document.getElementById('mbtiInsight');
+    console.log('mbtiBox:', mbtiBox);
     if (mbtiBox) {
       var courseDiv = document.createElement('div');
       courseDiv.id = 'courseRecommendation';
       courseDiv.style.cssText = 'margin-top:20px;';
       mbtiBox.parentNode.insertBefore(courseDiv, mbtiBox.nextSibling);
       container = courseDiv;
+      console.log('courseDiv created:', courseDiv);
     }
   }
   
-  if (!container) return;
+  if (!container) {
+    console.log('No container found, returning');
+    return;
+  }
   
   var matched = getMatchedCourses(styleCode);
+  console.log('matched courses:', matched);
   if (matched.length === 0) return;
   
   var topCourses = matched.slice(0, 2);
@@ -181,6 +189,7 @@ function renderCourses(styleCode) {
   
   html += '</div>';
   container.innerHTML = html;
+  console.log('Courses rendered:', html);
 }
 
 // 暴露到全局
