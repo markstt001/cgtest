@@ -951,55 +951,103 @@
                 var html = '<div style="text-align:center;padding:40px 20px;">';
                 html += '<div style="font-size:60px;margin-bottom:15px;">📜</div>';
                 html += '<div style="color:#ffffff;font-size:16px;margin-bottom:10px;">暂无测试历史</div>';
-                html += '<div style="color:#86868b;font-size:13px;">完成测试后，历史记录会自动保存</div>';
-                html += '<button class="btn-action" onclick="document.querySelector(\'.modal\')?.remove();goHome();" style="margin-top:20px;">去测试</button>';
+                html += '<div style="color:#86868b;font-size:13px;margin-bottom:20px;">完成测试后，历史记录会自动保存</div>';
+                html += '<button class="btn-action" onclick="document.querySelectorAll(\'.modal\').forEach(m=>m.remove());goHome();" style="background:linear-gradient(135deg,#2c5364,#d4af37);color:#0f2027;border:none;padding:14px 32px;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;">去测试</button>';
                 html += '</div>';
-                showModal('📜 测试历史', html);
+                showModal('📜 测试历史', html, false);
                 return;
             }
             
             var html = '<div style="text-align:left;">';
-            html += '<div style="font-size:14px;color:#86868b;margin-bottom:15px;text-align:center;">最近 ' + history.length + ' 次测试记录（点击查看详情）</div>';
+            html += '<div style="background:linear-gradient(135deg,rgba(44,83,100,0.9),rgba(32,58,67,0.9));padding:16px;border-radius:12px;margin-bottom:16px;">';
+            html += '<div style="font-size:13px;color:#86868b;margin-bottom:6px;">📊 测试统计</div>';
+            html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">';
+            html += '<div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:#d4af37;">' + history.length + '</div><div style="font-size:10px;color:#86868b;">测试次数</div></div>';
+            var uniqueStyles = {}; history.forEach(function(h){uniqueStyles[h.code]=true;});
+            html += '<div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:#10b981;">' + Object.keys(uniqueStyles).length + '</div><div style="font-size:10px;color:#86868b;">不同风格</div></div>';
+            var firstDate = new Date(history[history.length-1].timestamp);
+            html += '<div style="text-align:center;"><div style="font-size:11px;font-weight:600;color:#fff;">' + firstDate.toLocaleDateString('zh-CN') + '</div><div style="font-size:10px;color:#86868b;">首次测试</div></div>';
+            html += '</div></div>';
+            
+            html += '<div style="font-size:13px;color:#86868b;margin-bottom:12px;">📋 最近 ' + history.length + ' 次测试记录</div>';
             for (var i = 0; i < history.length; i++) {
                 var item = history[i];
-                var date = new Date(item.timestamp).toLocaleString('zh-CN');
+                var date = new Date(item.timestamp);
+                var dateStr = date.toLocaleDateString('zh-CN');
+                var timeStr = date.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
                 var style = styles[item.code];
                 var isFirst = (i === 0);
-                html += '<div style="padding:15px;margin:8px 0;background:' + (isFirst ? 'rgba(212,175,55,0.15)' : 'rgba(32,58,67,0.6)') + ';border-radius:12px;border-left:4px solid ' + (isFirst ? '#d4af37' : '#3a6a7a') + ';cursor:pointer;" onclick="showHistoryDetail(\'' + item.code + '\')">';
+                html += '<div style="padding:16px;margin-bottom:10px;background:' + (isFirst ? 'linear-gradient(135deg,rgba(212,175,55,0.15),rgba(212,175,55,0.05))' : 'rgba(32,58,67,0.6)') + ';border-radius:12px;border-left:4px solid ' + (isFirst ? '#d4af37' : '#3a6a7a') + ';cursor:pointer;transition:all 0.3s;" onclick="showHistoryDetail(\'' + item.code + '\',this)" onmouseover="this.style.background=\'rgba(44,83,100,0.8)\'" onmouseout="this.style.background=\'\'">';
                 html += '<div style="display:flex;align-items:center;gap:15px;">';
-                html += '<div style="font-size:40px;">' + (style ? style.animal : '') + '</div>';
+                html += '<div style="font-size:48px;">' + (style ? style.animal : '') + '</div>';
                 html += '<div style="flex:1;">';
-                html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">';
-                if (isFirst) html += '<span style="background:#d4af37;color:#0f2027;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">最新</span>';
-                html += '<span style="font-size:20px;font-weight:700;color:#fff;">' + item.code + '</span>';
-                html += '<span style="font-size:14px;color:#cccccc;">· ' + (style ? style.nickname : '') + '</span>';
+                html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+                if (isFirst) html += '<span style="background:linear-gradient(135deg,#d4af37,#f0e68c);color:#0f2027;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;">🔥 最新</span>';
+                html += '<span style="font-size:22px;font-weight:800;color:#fff;">' + item.code + '</span>';
+                html += '<span style="font-size:13px;color:#cccccc;">· ' + (style ? style.nickname : '') + '</span>';
                 html += '</div>';
-                html += '<div style="font-size:12px;color:#86868b;">' + date + ' <span style="color:#d4af37;">› 查看详情</span></div>';
-                html += '</div></div></div>';
+                html += '<div style="font-size:12px;color:#86868b;">📅 ' + dateStr + ' <span style="color:#d4af37;">› 点击查看完整报告</span></div>';
+                html += '</div>';
+                html += '<div style="font-size:24px;color:#86868b;">›</div>';
+                html += '</div></div>';
             }
             html += '</div>';
             
-            showModal('📜 测试历史', html);
+            showModal('📜 测试历史', html, false);
         }
         
         // 显示历史报告详情
-        function showHistoryDetail(code) {
+        function showHistoryDetail(code, element) {
             var style = styles[code];
             if (!style) return;
             
-            var html = '<div style="text-align:center;padding:20px;">';
+            var html = '<div style="text-align:center;padding:10px;">';
             html += '<div style="font-size:80px;margin-bottom:15px;">' + style.animal + '</div>';
             html += '<div style="font-size:36px;font-weight:800;color:#d4af37;letter-spacing:4px;margin-bottom:10px;">' + code + '</div>';
-            html += '<div style="font-size:20px;font-weight:600;color:#ffffff;margin-bottom:8px;">' + style.nickname + '</div>';
+            html += '<div style="font-size:20px;font-weight:600;color:#ffffff;margin-bottom:6px;">' + style.nickname + '</div>';
             html += '<div style="font-size:14px;color:#cccccc;margin-bottom:20px;">' + style.role + '</div>';
-            html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:20px;border-radius:12px;margin-top:20px;">';
+            
+            html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
+            html += '<div style="background:rgba(44,83,100,0.3);padding:14px;border-radius:12px;">';
+            html += '<div style="font-size:11px;color:#86868b;margin-bottom:4px;">信息获取</div>';
+            html += '<div style="font-size:14px;font-weight:700;color:#fff;">' + (code[0]==='A'?'🧠 分析型':'💡 直觉型') + '</div>';
+            html += '</div>';
+            html += '<div style="background:rgba(44,83,100,0.3);padding:14px;border-radius:12px;">';
+            html += '<div style="font-size:11px;color:#86868b;margin-bottom:4px;">决策导向</div>';
+            html += '<div style="font-size:14px;font-weight:700;color:#fff;">' + (code[1]==='R'?'🤝 关系型':'🎯 任务型') + '</div>';
+            html += '</div>';
+            html += '<div style="background:rgba(44,83,100,0.3);padding:14px;border-radius:12px;">';
+            html += '<div style="font-size:11px;color:#86868b;margin-bottom:4px;">处事方式</div>';
+            html += '<div style="font-size:14px;font-weight:700;color:#fff;">' + (code[2]==='C'?'⚔️ 竞争型':'🤲 合作型') + '</div>';
+            html += '</div>';
+            html += '<div style="background:rgba(44,83,100,0.3);padding:14px;border-radius:12px;">';
+            html += '<div style="font-size:11px;color:#86868b;margin-bottom:4px;">行动策略</div>';
+            html += '<div style="font-size:14px;font-weight:700;color:#fff;">' + (code[3]==='D'?'🛡️ 防御型':'🚀 开拓型') + '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:20px;border-radius:12px;margin-bottom:20px;">';
             html += '<div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:12px;">🎯 核心特质</div>';
             html += '<div style="line-height:1.8;color:#cccccc;">' + style.mbti + '</div>';
             html += '</div>';
-            html += '<button class="btn-action" onclick="document.querySelectorAll(\'.modal\').forEach(m=>m.remove());" style="margin-top:20px;">关闭</button>';
+            
+            html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:20px;border-radius:12px;margin-bottom:20px;">';
+            html += '<div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:12px;">✅ 核心优势</div>';
+            html += '<div style="line-height:1.8;color:#cccccc;">' + (style.strengths ? style.strengths : '善于发挥自身优势，在谈判中表现优异') + '</div>';
             html += '</div>';
             
-            showModal('📋 报告详情', html);
+            html += '<div style="text-align:left;background:rgba(32,58,67,0.6);padding:20px;border-radius:12px;margin-bottom:20px;">';
+            html += '<div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:12px;">⚠️ 注意事项</div>';
+            html += '<div style="line-height:1.8;color:#cccccc;">' + (style.weaknesses ? style.weaknesses : '注意避免常见盲点，持续提升谈判能力') + '</div>';
+            html += '</div>';
+            
+            html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
+            html += '<button onclick="window.location.href=\'team-report-pro.html\'" style="background:linear-gradient(135deg,#2c5364,#d4af37);color:#0f2027;border:none;padding:14px;border-radius:980px;font-size:14px;font-weight:600;cursor:pointer;">📊 团队报告</button>';
+            html += '<button onclick="document.querySelectorAll(\'.modal\').forEach(m=>m.remove());" style="background:rgba(44,83,100,0.6);color:#fff;border:2px solid #3a6a7a;padding:14px;border-radius:980px;font-size:14px;font-weight:600;cursor:pointer;">关闭</button>';
+            html += '</div>';
+            html += '</div>';
+            
+            showModal('📋 报告详情', html, false);
         }
         
         // 查看合作指南
