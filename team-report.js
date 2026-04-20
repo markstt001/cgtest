@@ -28,6 +28,79 @@ if (typeof window.styleDefinitions === 'undefined') {
    1. 基础计算
    ═══════════════════════════════════════════ */
 
+/**
+ * 团队综合评分算法
+ * 基准分 50 分，根据以下维度加分（满分 100）：
+ * ① 规模分（0-15）：人数越多协作基础越好
+ * ② 多样性分（0-15）：风格种类越多互补越强
+ * ③ 均衡分（0-20）：四个维度越均衡分数越高
+ * ④ 互补分（0-15）：成员间互补配对比例越高越好
+ */
+function computeScore(members, dim) {
+  var total = members.length;
+
+  // ① 规模分：3人起 8 分，每多 1 人 +2 分，上限 15
+  var sizeScore = Math.min(15, 8 + Math.max(0, total - 3) * 2);
+
+  // ② 多样性分：unique styles / total，满分 15
+  var unique = {};
+  members.forEach(function(m) { unique[m.code] = true; });
+  var diversity = Object.keys(unique).length / total;
+  var diversityScore = Math.round(diversity * 15);
+
+  // ③ 均衡分：四个维度中每对少数派占比之和，满分 20
+  var minorPct = 0;
+  if(total > 0) {
+    minorPct = Math.min(dim.A, dim.I) / total +
+               Math.min(dim.R, dim.T) / total +
+               Math.min(dim.C, dim.B) / total +
+               Math.min(dim.D, dim.P) / total;
+  }
+  // minorPct 范围 0~2，映射到 0~20
+  var balanceScore = Math.round(minorPct / 2 * 20);
+
+  // ④ 互补分：两人配对中 ≥2 维度不同的比例，满分 15
+  var pairCount = 0, compCount = 0;
+  for(var i = 0; i < members.length; i++) {
+    for(var j = i + 1; j < members.length; j++) {
+      pairCount++;
+      var diff = 0;
+      for(var k = 0; k < 4; k++) { if(members[i].code[k] !== members[j].code[k]) diff++; }
+      if(diff >= 2) compCount++;
+    }
+  }
+  var compRate = pairCount > 0 ? compCount / pairCount : 0;
+  var compScore = Math.round(compRate * 15);
+
+  var raw = 50 + sizeScore + diversityScore + balanceScore + compScore;
+  var value = Math.min(100, Math.max(0, raw));
+
+  // 等级与描述
+  var level, emoji;
+  if(value >= 90)      { level = '卓越'; emoji = '🏆'; }
+  else if(value >= 80) { level = '优秀'; emoji = '🥇'; }
+  else if(value >= 70) { level = '良好'; emoji = '🥈'; }
+  else if(value >= 60) { level = '合格'; emoji = '🥉'; }
+  else                 { level = '待提升'; emoji = '📋'; }
+
+  // 百分位：假设正态分布 μ=65, σ=15
+  var z = (value - 65) / 15;
+  var percentile = Math.round(normalCDF(z) * 100);
+
+  return { value: value, level: level, percentile: percentile, emoji: emoji };
+}
+
+/** 标准正态 CDF 近似（误差 < 0.0001）*/
+function normalCDF(z) {
+  var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  var a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  var sign = z < 0 ? -1 : 1;
+  z = Math.abs(z) / Math.SQRT2;
+  var t = 1 / (1 + p * z);
+  var y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+  return 0.5 * (1 + sign * y);
+}
+
 /** 维度计数 */
 function countDimensions(members) {
   var d = { A:0, I:0, R:0, T:0, C:0, B:0, D:0, P:0 };
@@ -517,6 +590,7 @@ function renderTeamReport() {
   var dim = countDimensions(members);
 
   // 全部算法计算
+  var score = computeScore(members, dim);
   var teamType = computeTeamType(members, dim);
   var roles = computeRoles(members, dim);
   var ar = computeAdvantagesAndRisks(members, dim);
@@ -531,17 +605,19 @@ function renderTeamReport() {
   el('report-subtitle').textContent = data.meta.subtitle;
   el('report-date').textContent = '报告生成时间：' + data.meta.generatedAt;
 
-  // ── 评分 ──
-  el('score-num').textContent = data.score.value;
-  el('score-level').textContent = data.score.emoji + ' ' + data.score.level + ' · 超越 ' + data.score.percentile + '% 的采购团队';
+  // ── 评分（算法生成）──
+  el('score-num').textContent = score.value;
+  el('score-level').textContent = score.emoji + ' ' + score.level + ' · 超越 ' + score.percentile + '% 的采购团队';
 
-  // ── 团队概况 ──
+  // ── 团队概况（算法生成）──
+  var testedCount = members.filter(function(m) { return m.code && m.code.length === 4; }).length;
+  var pendingCount = total - testedCount;
   el('team-total').textContent = total;
-  el('team-tested').textContent = total;
-  el('team-pending').textContent = '0';
+  el('team-tested').textContent = testedCount;
+  el('team-pending').textContent = pendingCount;
   el('team-tags').innerHTML =
     '<span class="tag">' + total + ' 人团队</span>' +
-    '<span class="tag">100% 已测试</span>' +
+    '<span class="tag">' + testedCount + '/' + total + ' 已测试</span>' +
     '<span class="tag">' + esc(teamType.label) + '</span>';
   el('team-type-label').innerHTML = teamType.emoji + ' ' + esc(teamType.label);
   el('team-type-desc').textContent = teamType.desc;
