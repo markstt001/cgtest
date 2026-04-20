@@ -1,11 +1,10 @@
 /**
- * team-report-data.js v2.0 — 团队报告原始数据
- * 只存"不可推导的原始数据"，其余全部由算法从成员代码推导。
+ * team-report-data.js v2.1 — 团队报告原始数据
  * 
  * 数据来源说明：
  * - members: 每个成员完成个人谈判风格测试后得到的 4 字母代码（如 ARCD）
  * - courseLibrary: 课程库，算法根据团队短板维度自动匹配
- * - score: 团队综合评分（可后续由后端 API 替换）
+ * - score 不再在此硬编码，由算法从成员代码自动计算
  */
 
 var teamReportData = {
@@ -19,7 +18,6 @@ var teamReportData = {
 
   // ── 团队成员（唯一核心数据源）──
   // 每个成员来自个人测试结果的 4 字母代码
-  // role 字段不在此定义，由算法根据稀缺度+互补度自动判定
   members: [
     { name: '张三', code: 'ARCD' },
     { name: '李四', code: 'ITCP' },
@@ -28,16 +26,7 @@ var teamReportData = {
     { name: '钱七', code: 'IRCD' }
   ],
 
-  // ── 团队综合评分（可由后端根据实际数据计算后注入）──
-  score: {
-    value: 87,
-    level: '优秀',
-    percentile: 78,
-    emoji: '🏆'
-  },
-
   // ── 课程库（算法根据团队短板维度自动匹配）──
-  // tags 对应四维度的字母标签，短板维度匹配的课程优先展示
   courseLibrary: [
     { id: 5,  name: '《采购降本和双赢谈判+AI 应用》', tags: ['A','C'], cta: '立即报名，提升谈判力 ›',     url: 'https://www.ailianruyi.com/#/product/detail?id=5' },
     { id: 4,  name: '《决胜供应链》',                   tags: ['C','T'], cta: '立即报名，掌握谈判主动权 ›',   url: 'https://www.ailianruyi.com/#/product/detail?id=4' },
