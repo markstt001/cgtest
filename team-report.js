@@ -1,16 +1,23 @@
 /**
- * team-report.js v3.0 — 团队报告：全算法动态生成
+ * team-report.js v4.0 — 团队报告：对标完整16种风格 × 8大能力全集
  *
- * 所有结论（团队类型、角色定位、行动计划、项目配置）均从成员 4 字母代码推导，
- * 无硬编码文案。数据来源 = 个人测试结果的聚合。
+ * 所有结论从成员 4 字母代码动态推导，无硬编码。
+ * 核心参考系 = 完整的 16 种谈判风格 × 8 大核心能力，而非仅团队内部。
  *
  * 依赖：team-report-data.js（成员列表 + 课程库）
  *       styles-v3.js / cooperation-guides.js（styleDefinitions）
  */
 
 /* ═══════════════════════════════════════════
-   0. styleDefinitions 备用
+   0. 16 种风格全集 + 8 大能力 + styleDefinitions
    ═══════════════════════════════════════════ */
+var ALL_STYLES = [
+  'ARCD','ARCP','ARBD','ARBP',
+  'ATCD','ATCP','ATBD','ATBP',
+  'IRCD','IRCP','IRBD','IRBP',
+  'ITCD','ITCP','ITBD','ITBP'
+];
+
 if (typeof window.styleDefinitions === 'undefined') {
   window.styleDefinitions = {
     ARCD: { name: "数据军师", animal: "🦉" }, ARCP: { name: "关系达人", animal: "🦉" },
@@ -24,84 +31,38 @@ if (typeof window.styleDefinitions === 'undefined') {
   };
 }
 
+// 每种风格的核心能力标签
+var STYLE_CAPABILITIES = {
+  ARCD: ['数据分析','关系维护','竞争博弈','风险管控'],
+  ARCP: ['数据分析','关系维护','竞争博弈','敏捷开拓'],
+  ARBD: ['数据分析','关系维护','合作共赢','风险管控'],
+  ARBP: ['数据分析','关系维护','合作共赢','敏捷开拓'],
+  ATCD: ['数据分析','任务驱动','竞争博弈','风险管控'],
+  ATCP: ['数据分析','任务驱动','竞争博弈','敏捷开拓'],
+  ATBD: ['数据分析','任务驱动','合作共赢','风险管控'],
+  ATBP: ['数据分析','任务驱动','合作共赢','敏捷开拓'],
+  IRCD: ['直觉洞察','关系维护','竞争博弈','风险管控'],
+  IRCP: ['直觉洞察','关系维护','竞争博弈','敏捷开拓'],
+  IRBD: ['直觉洞察','关系维护','合作共赢','风险管控'],
+  IRBP: ['直觉洞察','关系维护','合作共赢','敏捷开拓'],
+  ITCD: ['直觉洞察','任务驱动','竞争博弈','风险管控'],
+  ITCP: ['直觉洞察','任务驱动','竞争博弈','敏捷开拓'],
+  ITBD: ['直觉洞察','任务驱动','合作共赢','风险管控'],
+  ITBP: ['直觉洞察','任务驱动','合作共赢','敏捷开拓']
+};
+
+// 8 大核心能力维度
+var ALL_CAPABILITIES = ['数据分析','直觉洞察','关系维护','任务驱动','竞争博弈','合作共赢','风险管控','敏捷开拓'];
+
 /* ═══════════════════════════════════════════
    1. 基础计算
    ═══════════════════════════════════════════ */
 
-/**
- * 团队综合评分算法（适配任意人数）
- * 基准分 50 分，根据以下维度加分（满分 100）：
- * ① 规模分（0-15）：对数增长，避免大团队天然占优
- * ② 多样性分（0-15）：风格种类占比
- * ③ 均衡分（0-20）：四个维度少数派占比之和
- * ④ 互补分（0-15）：成员间互补配对比例
- */
-function computeScore(members, dim) {
-  var total = members.length;
-  if(total === 0) return { value: 0, level: '数据不足', percentile: 0, emoji: '—' };
-
-  // ① 规模分：对数曲线，2人起分，渐近上限 15
-  // 3人=6, 5人=9, 10人=12, 20人=15
-  var sizeScore = Math.min(15, Math.round(3 + 4 * Math.log2(Math.max(2, total))));
-
-  // ② 多样性分：unique styles / total，满分 15
-  var unique = {};
-  members.forEach(function(m) { unique[m.code] = true; });
-  var diversity = Object.keys(unique).length / total;
-  var diversityScore = Math.round(diversity * 15);
-
-  // ③ 均衡分：四个维度中每对少数派占比之和，满分 20
-  var minorPct = 0;
-  if(total > 0) {
-    minorPct = Math.min(dim.A, dim.I) / total +
-               Math.min(dim.R, dim.T) / total +
-               Math.min(dim.C, dim.B) / total +
-               Math.min(dim.D, dim.P) / total;
-  }
-  // minorPct 范围 0~2，映射到 0~20
-  var balanceScore = Math.round(minorPct / 2 * 20);
-
-  // ④ 互补分：两人配对中 ≥2 维度不同的比例，满分 15
-  var pairCount = 0, compCount = 0;
-  for(var i = 0; i < members.length; i++) {
-    for(var j = i + 1; j < members.length; j++) {
-      pairCount++;
-      var diff = 0;
-      for(var k = 0; k < 4; k++) { if(members[i].code[k] !== members[j].code[k]) diff++; }
-      if(diff >= 2) compCount++;
-    }
-  }
-  var compRate = pairCount > 0 ? compCount / pairCount : 0;
-  var compScore = Math.round(compRate * 15);
-
-  var raw = 50 + sizeScore + diversityScore + balanceScore + compScore;
-  var value = Math.min(100, Math.max(0, raw));
-
-  // 等级与描述
-  var level, emoji;
-  if(value >= 90)      { level = '卓越'; emoji = '🏆'; }
-  else if(value >= 80) { level = '优秀'; emoji = '🥇'; }
-  else if(value >= 70) { level = '良好'; emoji = '🥈'; }
-  else if(value >= 60) { level = '合格'; emoji = '🥉'; }
-  else                 { level = '待提升'; emoji = '📋'; }
-
-  // 百分位：假设正态分布 μ=65, σ=15
-  var z = (value - 65) / 15;
-  var percentile = Math.round(normalCDF(z) * 100);
-
-  return { value: value, level: level, percentile: percentile, emoji: emoji };
+/** 获取某维度少数派成员名 */
+function minorityNames(members, letter) {
+  return members.filter(function(m){ return m.code.toUpperCase().indexOf(letter) >= 0; }).map(function(m){ return m.name; });
 }
-
-/** 标准正态 CDF 近似（误差 < 0.0001）*/
-function normalCDF(z) {
-  var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
-  var a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
-  var sign = z < 0 ? -1 : 1;
-  z = Math.abs(z) / Math.SQRT2;
-  var t = 1 / (1 + p * z);
-  var y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
-  return 0.5 * (1 + sign * y);
-}
+function pct(n, total) { return total > 0 ? Math.round(n / total * 100) : 0; }
 
 /** 维度计数 */
 function countDimensions(members) {
@@ -116,28 +77,113 @@ function countDimensions(members) {
   return d;
 }
 
-function pct(n, total) { return Math.round(n / total * 100); }
-
-/** 获取某维度的少数派成员名 */
-function minorityNames(members, letter) {
-  return members.filter(function(m){ return m.code.toUpperCase().indexOf(letter) >= 0; }).map(function(m){ return m.name; });
+/**
+ * 能力覆盖分析 — 对标完整 16 种风格 × 8 大能力全集
+ * 返回：覆盖的能力、缺失的能力、缺失的风格列表、覆盖率
+ */
+function computeCapabilityCoverage(members) {
+  var covered = {};
+  var coveredStyles = {};
+  members.forEach(function(m) {
+    (STYLE_CAPABILITIES[m.code.toUpperCase()] || []).forEach(function(c) { covered[c] = true; });
+    coveredStyles[m.code.toUpperCase()] = true;
+  });
+  var presentCaps = ALL_CAPABILITIES.filter(function(c) { return covered[c]; });
+  var missingCaps = ALL_CAPABILITIES.filter(function(c) { return !covered[c]; });
+  var missingStyles = ALL_STYLES.filter(function(s) { return !coveredStyles[s]; });
+  return {
+    presentCaps: presentCaps,
+    missingCaps: missingCaps,
+    capPct: Math.round(presentCaps.length / ALL_CAPABILITIES.length * 100),
+    stylePct: Math.round(Object.keys(coveredStyles).length / ALL_STYLES.length * 100),
+    missingStyles: missingStyles
+  };
 }
 
 /* ═══════════════════════════════════════════
-   2. 团队类型算法
+   2. 团队综合评分算法
    ═══════════════════════════════════════════
-   依据：
-   - 风格多样性：unique codes / total members
-   - 维度均衡度：四个维度各自的多数派占比标准差
-   - 互补指数：随机两人配对中 ≥2 维度不同的比例
-*/
+ * 基准分 50 分，满分 100：
+ * ① 能力覆盖（0-20）：8 大能力覆盖比例
+ * ② 风格覆盖（0-15）：16 种风格覆盖比例
+ * ③ 维度均衡（0-15）：四个维度少数派占比之和
+ * ④ 互补指数（0-10）：两人配对中 ≥2 维不同的比例
+ * ⑤ 规模分（0-10）：对数曲线，2人起分
+ */
+function computeScore(members, dim) {
+  var total = members.length;
+  if(total === 0) return { value: 0, level: '数据不足', percentile: 0, emoji: '—' };
+
+  var cap = computeCapabilityCoverage(members);
+
+  // ① 能力覆盖分：8 大能力覆盖率 × 20
+  var capScore = Math.round(cap.capPct / 100 * 20);
+
+  // ② 风格覆盖分：16 种风格覆盖率 × 15
+  var styleScore = Math.round(cap.stylePct / 100 * 15);
+
+  // ③ 维度均衡分：四个维度少数派占比之和，映射 0~15
+  var minorPct = 0;
+  if(total > 0) {
+    minorPct = Math.min(dim.A, dim.I) / total +
+               Math.min(dim.R, dim.T) / total +
+               Math.min(dim.C, dim.B) / total +
+               Math.min(dim.D, dim.P) / total;
+  }
+  var balanceScore = Math.round(minorPct / 2 * 15);
+
+  // ④ 互补分
+  var pairCount = 0, compCount = 0;
+  for(var i = 0; i < members.length; i++) {
+    for(var j = i + 1; j < members.length; j++) {
+      pairCount++;
+      var diff = 0;
+      for(var k = 0; k < 4; k++) { if(members[i].code[k] !== members[j].code[k]) diff++; }
+      if(diff >= 2) compCount++;
+    }
+  }
+  var compRate = pairCount > 0 ? compCount / pairCount : 0;
+  var compScore = Math.round(compRate * 10);
+
+  // ⑤ 规模分：log2 曲线
+  var sizeScore = Math.min(10, Math.round(1 + 3 * Math.log2(Math.max(2, total))));
+
+  var raw = 50 + capScore + styleScore + balanceScore + compScore + sizeScore;
+  var value = Math.min(100, Math.max(0, raw));
+
+  var level, emoji;
+  if(value >= 90)      { level = '卓越'; emoji = '🏆'; }
+  else if(value >= 80) { level = '优秀'; emoji = '🥇'; }
+  else if(value >= 70) { level = '良好'; emoji = '🥈'; }
+  else if(value >= 60) { level = '合格'; emoji = '🥉'; }
+  else                 { level = '待提升'; emoji = '📋'; }
+
+  var z = (value - 65) / 15;
+  var percentile = Math.round(normalCDF(z) * 100);
+  return { value: value, level: level, percentile: percentile, emoji: emoji };
+}
+
+function normalCDF(z) {
+  var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  var a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  var sign = z < 0 ? -1 : 1;
+  z = Math.abs(z) / Math.SQRT2;
+  var t = 1 / (1 + p * z);
+  var y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+  return 0.5 * (1 + sign * y);
+}
+
+/* ═══════════════════════════════════════════
+   3. 团队类型算法 — 对标全集
+   ═══════════════════════════════════════════ */
 function computeTeamType(members, dim) {
   var total = members.length;
+  var cap = computeCapabilityCoverage(members);
+
   var uniqueCodes = {};
   members.forEach(function(m){ uniqueCodes[m.code] = true; });
-  var diversity = Object.keys(uniqueCodes).length / total;  // 0~1
+  var diversity = Object.keys(uniqueCodes).length / total;
 
-  // 维度均衡度：四个维度多数派占比的标准差（越低越均衡）
   var majorPcts = [
     Math.max(dim.A, dim.I)/total,
     Math.max(dim.R, dim.T)/total,
@@ -147,28 +193,26 @@ function computeTeamType(members, dim) {
   var avg = majorPcts.reduce(function(a,b){return a+b;},0) / 4;
   var stdDev = Math.sqrt(majorPcts.reduce(function(s,v){ return s + (v-avg)*(v-avg); },0) / 4);
 
-  // 互补指数：所有两人组合中 ≥2 维度不同的比例
   var pairCount = 0, compCount = 0;
   for(var i=0; i<members.length; i++) {
     for(var j=i+1; j<members.length; j++) {
-      pairCount++;
-      var diff = 0;
+      pairCount++; var diff = 0;
       for(var k=0; k<4; k++) { if(members[i].code[k] !== members[j].code[k]) diff++; }
       if(diff >= 2) compCount++;
     }
   }
   var compIndex = pairCount > 0 ? compCount / pairCount : 0;
 
-  // 判定
-  if(diversity >= 0.8 && stdDev < 0.1 && compIndex >= 0.6) {
+  // 综合判定：能力覆盖 + 风格覆盖 + 多样性 + 均衡 + 互补
+  if(cap.capPct >= 75 && compIndex >= 0.6 && stdDev < 0.15) {
     return {
       emoji: '🔀', label: '互补型团队',
-      desc: '成员风格多样，四个维度分布均衡，互补性强。建议加强跨风格沟通，最大化协同效应。'
+      desc: '能力覆盖全面（' + cap.capPct + '%），风格多样（' + cap.stylePct + '%），互补性强。建议加强跨风格沟通，最大化协同效应。'
     };
-  } else if(diversity < 0.5) {
+  } else if(cap.capPct < 50) {
     return {
       emoji: '🎯', label: '专精型团队',
-      desc: '成员风格高度集中，在特定领域有突出优势，但可能在其他维度存在盲区。建议通过外部协作或培训补充短板。'
+      desc: '能力覆盖有限（仅 ' + cap.capPct + '%），在特定领域有突出优势，但存在 ' + cap.missingCaps.length + ' 项能力缺口：' + cap.missingCaps.join('、') + '。建议通过外部协作或培训补充短板。'
     };
   } else if(compIndex < 0.4) {
     return {
@@ -178,31 +222,23 @@ function computeTeamType(members, dim) {
   } else {
     return {
       emoji: '⚡', label: '混合型团队',
-      desc: '成员风格有一定多样性，部分维度互补，部分维度集中。建议在互补维度上加强协作，在集中维度上注意盲点。'
+      desc: '能力覆盖 ' + cap.capPct + '%，风格覆盖 ' + cap.stylePct + '%，部分维度互补，部分维度集中。建议在互补维度上加强协作，在集中维度上注意盲点。'
     };
   }
 }
 
 /* ═══════════════════════════════════════════
-   3. 角色定位算法
-   ═══════════════════════════════════════════
-   每个成员获得一个"团队角色"标签，依据三个维度：
-   - 稀缺度 Scarcity：该风格在团队中越稀有，角色价值越高
-   - 互补度 Bridge：能与多少其他成员形成 ≥2 维度互补
-   - 均衡度 Balance：该成员自身四个维度是否覆盖了团队的少数派
-
-   综合评分 → 角色标签
-*/
+   4. 角色定位算法 — 对标全集
+   ═══════════════════════════════════════════ */
 function computeRoles(members, dim) {
   var total = members.length;
+  var cap = computeCapabilityCoverage(members);
+
   return members.map(function(m) {
     var code = m.code.toUpperCase();
-
-    // ① 稀缺度：同风格人数越少分越高
     var sameCount = members.filter(function(x){ return x.code === m.code; }).length;
-    var scarcity = 1 / sameCount;  // 1.0（唯一） ~ 0.2（5人同风格）
+    var scarcity = 1 / sameCount;
 
-    // ② 互补度：能和其他多少人互补（≥2 维度不同）
     var bridgeCount = 0;
     members.forEach(function(other) {
       if(other.name === m.name) return;
@@ -212,33 +248,18 @@ function computeRoles(members, dim) {
     });
     var bridge = total > 1 ? bridgeCount / (total - 1) : 0;
 
-    // ③ 均衡覆盖：该成员覆盖了多少个团队的少数派维度
-    var minorityDims = [];
-    if(dim.A < dim.I) minorityDims.push(0); else if(dim.I < dim.A) minorityDims.push(0);
-    if(dim.R < dim.T) minorityDims.push(1); else if(dim.T < dim.R) minorityDims.push(1);
-    if(dim.C < dim.B) minorityDims.push(2); else if(dim.B < dim.C) minorityDims.push(2);
-    if(dim.D < dim.P) minorityDims.push(3); else if(dim.P < dim.D) minorityDims.push(3);
+    // 该成员覆盖了团队缺失的哪些能力
+    var memberCaps = STYLE_CAPABILITIES[code] || [];
+    var coversMissing = memberCaps.filter(function(c) { return cap.missingCaps.indexOf(c) >= 0; });
+    var balance = cap.missingCaps.length > 0 ? coversMissing.length / cap.missingCaps.length : 0;
 
-    var coverCount = 0;
-    minorityDims.forEach(function(idx) {
-      // 检查该成员在这个维度上是否属于少数派
-      if(code[idx] === getMinorityLetter(dim, idx)) coverCount++;
-    });
-    var balance = minorityDims.length > 0 ? coverCount / minorityDims.length : 0;
-
-    // 综合评分
     var score = scarcity * 0.4 + bridge * 0.35 + balance * 0.25;
 
-    // 角色标签（动态阈值，适配任意团队规模）
-    // 用百分位排名替代固定分数阈值
     var role;
     if(sameCount === 1 && bridge >= 0.5 && total >= 3) {
-      // 唯一风格 + 能跟半数以上互补 + 团队≥3人 → 核心骨干
       role = '核心骨干';
     } else if(scarcity >= 0.5) {
-      // 风格稀有（团队占比 ≤ 1/2）
-      if(balance >= 0.5) role = '桥梁角色';
-      else role = '稀缺人才';
+      role = balance >= 0.3 ? '桥梁角色' : '稀缺人才';
     } else if(bridge >= 0.5) {
       role = '中坚力量';
     } else {
@@ -249,110 +270,89 @@ function computeRoles(members, dim) {
       name: m.name,
       code: m.code,
       role: role,
+      coversMissing: coversMissing,
       scores: { scarcity: scarcity, bridge: bridge, balance: balance, total: score }
     };
   });
 }
 
-function getMinorityLetter(dim, idx) {
-  var pairs = [['A','I'],['R','T'],['C','B'],['D','P']];
-  var p = pairs[idx];
-  return dim[p[0]] < dim[p[1]] ? p[0] : p[1];
-}
-
 /* ═══════════════════════════════════════════
-   4. 优势 & 风险算法
+   5. 优势 & 风险算法 — 对标完整8大能力
    ═══════════════════════════════════════════ */
 function computeAdvantagesAndRisks(members, dim) {
   var total = members.length;
+  var cap = computeCapabilityCoverage(members);
   var advantages = [], risks = [];
 
-  var dimPairs = [
-    { pos:'A', neg:'I', posLabel:'分析型', negLabel:'直觉型',
-      advTitle:'数据分析能力强', advDesc:'决策时有数据支撑，善于收集市场信息、进行成本分析和风险评估',
-      advImpact:'在供应商评估、价格谈判、合同审核等环节表现优异，能有效降低采购风险',
-      riskTitle:'直觉型成员不足', riskDesc:'可能影响创新思维和市场机会识别，过度依赖数据可能错失非量化机会',
-      riskAlert:'新兴市场进入、创新品类采购、供应商早期介入等需要直觉判断的场景',
-      riskFix:'为直觉型成员创造表达洞察的机会；引入外部行业专家顾问；建立市场情报收集机制' },
-    { pos:'R', neg:'T', posLabel:'关系型', negLabel:'任务型',
-      advTitle:'关系维护能力好', advDesc:'善于维护供应商关系和内部协调，注重长期合作，善于化解冲突',
-      advImpact:'供应商满意度高，紧急情况下能获得供应商支持，内部跨部门协作顺畅',
-      riskTitle:'任务型成员不足', riskDesc:'可能影响执行效率和目标达成，过度关注关系可能影响谈判底线',
-      riskAlert:'成本削减项目、供应商绩效考核、合同到期重谈等需要强硬立场的场景',
-      riskFix:'任务型成员主导 KPI 考核和成本削减项目；建立明确的谈判底线和授权机制；引入第三方评估' },
-    { pos:'C', neg:'B', posLabel:'竞争型', negLabel:'合作型',
-      advTitle:'竞争意识强', advDesc:'在谈判中善于争取最大利益，不甘示弱，敢于施压，底线意识强',
-      advImpact:'谈判成果优异，采购成本可控，合同条款有利于我方',
-      riskTitle:'合作型成员不足', riskDesc:'可能影响长期合作关系建设，在战略供应商管理中可能过于强势',
-      riskAlert:'战略供应商关系管理、联合创新项目等需要共赢思维的场景',
-      riskFix:'合作型成员主导战略供应商管理；建立共赢谈判框架；定期评估供应商满意度' },
-    { pos:'D', neg:'P', posLabel:'防御型', negLabel:'开拓型',
-      advTitle:'风险控制能力强', advDesc:'谨慎保守，善于识别和规避风险，决策前充分论证',
-      advImpact:'采购合规性高，合同风险低，供应链稳定性强',
-      riskTitle:'开拓型成员不足', riskDesc:'可能影响快速行动和敏捷响应，过度谨慎可能错失市场窗口期',
-      riskAlert:'紧急采购、价格波动应对、供应商切换等需要快速决策的场景',
-      riskFix:'为开拓型成员授权快速决策权限；建立分级决策机制；定期复盘决策速度' }
-  ];
+  // ── 基于 8 大能力覆盖情况 ──
+  // 已覆盖的能力 → 优势
+  cap.presentCaps.forEach(function(c) {
+    var holders = members.filter(function(m) {
+      return (STYLE_CAPABILITIES[m.code.toUpperCase()] || []).indexOf(c) >= 0;
+    }).map(function(m) { return m.name; });
 
+    var advMap = {
+      '数据分析': { icon: '📊', title: '数据分析能力强', desc: '团队具备数据驱动的决策能力，善于成本分析和市场信息收集。', impact: '在供应商评估、价格谈判、合同审核等环节表现优异。', holders: holders },
+      '直觉洞察': { icon: '💡', title: '直觉洞察力强', desc: '团队具备敏锐的市场嗅觉，能快速捕捉创新机会和非量化信息。', impact: '在创新品类引入、市场趋势判断方面表现突出。', holders: holders },
+      '关系维护': { icon: '🤝', title: '关系维护能力好', desc: '团队善于维护供应商关系和内部协调，注重长期合作。', impact: '供应商满意度高，紧急情况下能获得供应商支持。', holders: holders },
+      '任务驱动': { icon: '🎯', title: '任务执行力强', desc: '团队目标明确，执行力强，能高效推进项目落地。', impact: '项目推进高效，KPI 达成率高。', holders: holders },
+      '竞争博弈': { icon: '⚔️', title: '竞争意识强', desc: '团队在谈判中善于争取最大利益，底线意识强。', impact: '谈判成果优异，采购成本可控。', holders: holders },
+      '合作共赢': { icon: '🤝', title: '合作共赢意识好', desc: '团队善于建立长期合作关系，追求双赢结果。', impact: '供应商忠诚度高，长期合作稳定性强。', holders: holders },
+      '风险管控': { icon: '🛡️', title: '风险控制能力强', desc: '团队谨慎保守，善于识别和规避风险。', impact: '采购合规性高，合同风险低，供应链稳定性强。', holders: holders },
+      '敏捷开拓': { icon: '🚀', title: '开拓创新能力好', desc: '团队敢于尝试新方法，行动敏捷。', impact: '市场响应快，创新机会捕捉能力强。', holders: holders }
+    };
+    var a = advMap[c] || { icon: '✅', title: c, desc: '', impact: '', holders: holders };
+    advantages.push({
+      icon: a.icon,
+      title: a.title,
+      desc: a.desc + '（' + holders.join('、') + '）',
+      impact: a.impact
+    });
+  });
+
+  // 缺失的能力 → 风险
+  cap.missingCaps.forEach(function(c) {
+    var riskMap = {
+      '数据分析': { icon: '⚠️', title: '数据分析能力缺失', desc: '团队完全缺乏数据分析能力，决策可能凭感觉或经验。', alert: '大型供应商评估、复杂合同审核等需要深度分析的场景。', fix: '引入数据分析工具；招聘分析型人才；建立数据驱动决策流程。' },
+      '直觉洞察': { icon: '⚠️', title: '直觉洞察能力缺失', desc: '团队缺乏创新思维和敏锐的市场嗅觉。', alert: '新兴市场进入、创新品类采购、供应商早期介入等场景。', fix: '引入外部行业专家顾问；建立市场情报收集机制；鼓励创新思维。' },
+      '关系维护': { icon: '⚠️', title: '关系维护能力缺失', desc: '团队可能忽略供应商关系和内部协调。', alert: '战略供应商关系管理、冲突化解等场景。', fix: '加强关系管理培训；建立供应商沟通机制；招聘关系型人才。' },
+      '任务驱动': { icon: '⚠️', title: '任务执行能力缺失', desc: '团队可能缺乏目标执行力和效率。', alert: '成本削减项目、供应商绩效考核等需要强执行的场景。', fix: '建立明确的 KPI 和授权机制；引入项目管理工具。' },
+      '竞争博弈': { icon: '⚠️', title: '竞争能力缺失', desc: '团队在谈判中可能过于妥协，无法争取最大利益。', alert: '价格谈判、合同条款博弈等场景。', fix: '谈判前制定 BATNA；设定谈判底线；招聘竞争型人才。' },
+      '合作共赢': { icon: '⚠️', title: '合作共赢能力缺失', desc: '团队可能过于强势，影响长期合作关系。', alert: '战略供应商长期合作、联合创新等场景。', fix: '建立共赢谈判框架；定期评估供应商满意度；培养合作思维。' },
+      '风险管控': { icon: '⚠️', title: '风险控制能力缺失', desc: '团队可能过于冒进，忽略潜在风险。', alert: '合同审核、合规检查、高风险采购等场景。', fix: '建立强制风险评估流程；引入第三方风控；招聘风控型人才。' },
+      '敏捷开拓': { icon: '⚠️', title: '开拓创新能力缺失', desc: '团队可能反应迟缓，错失市场窗口期。', alert: '紧急采购、价格波动应对、供应商切换等场景。', fix: '建立分级决策机制；为成员授权快速决策权限；引入敏捷方法。' }
+    };
+    var r = riskMap[c] || { icon: '⚠️', title: c + '能力缺失', desc: '', alert: '', fix: '' };
+    risks.push({ icon: r.icon, title: r.title, desc: r.desc, alert: r.alert, fix: r.fix });
+  });
+
+  // ── 基于维度比例的辅助分析 ──
+  var dimPairs = [
+    { pos:'A', neg:'I', posLabel:'分析型', negLabel:'直觉型' },
+    { pos:'R', neg:'T', posLabel:'关系型', negLabel:'任务型' },
+    { pos:'C', neg:'B', posLabel:'竞争型', negLabel:'合作型' },
+    { pos:'D', neg:'P', posLabel:'防御型', negLabel:'开拓型' }
+  ];
   dimPairs.forEach(function(dp) {
-    var posCount = dim[dp.pos];
-    var negCount = dim[dp.neg];
+    var posCount = dim[dp.pos], negCount = dim[dp.neg];
     var negPctVal = total > 0 ? negCount / total : 0;
-    if(posCount >= negCount) {
+    // 少数派占比 < 30% 时标注维度失衡
+    if(negPctVal < 0.3 && negPctVal > 0) {
+      var names = minorityNames(members, dp.neg);
       advantages.push({
-        icon: getAdvIcon(dp.pos),
-        title: dp.advTitle,
-        desc: '团队中 ' + posCount + ' 人（' + pct(posCount,total) + '）是' + dp.posLabel + '，' + dp.advDesc + '。',
-        impact: '💼 业务影响：' + dp.advImpact + '。'
+        icon: '📐',
+        title: dp.posLabel + '占优（' + posCount + '/' + total + '）',
+        desc: '团队偏向' + dp.posLabel + '，' + (dp.pos === 'A' ? '决策有数据支撑' : dp.pos === 'R' ? '善于维护关系' : dp.pos === 'C' ? '善于争取利益' : '风险意识强') + '。',
+        impact: '需注意' + dp.negLabel + '维度的短板。'
       });
-      // 风险判定：少数派占比 < 30% 才视为真正风险（适配任意团队规模）
-      // negCount === 0 是最严重的风险（完全缺失该维度）
-      if(negPctVal < 0.3) {
-        var names = minorityNames(members, dp.neg);
-        var riskDesc = negCount === 0
-          ? '团队中完全没有' + dp.negLabel + '成员，' + dp.riskDesc
-          : '团队中' + dp.negLabel + '成员只有 ' + negCount + ' 人（' + pct(negCount,total) + '），' + dp.riskDesc;
-        risks.push({
-          icon: getRiskIcon(dp.neg),
-          title: dp.riskTitle,
-          desc: riskDesc,
-          alert: dp.riskAlert + '可能表现欠佳。',
-          fix: (names.length > 0 ? '涉及成员：' + names.join('、') + '。' : '') + dp.riskFix + '。'
-        });
-      }
-    } else {
-      advantages.push({
-        icon: getAdvIcon(dp.neg),
-        title: dp.negLabel + '能力强',
-        desc: '团队中 ' + negCount + ' 人（' + pct(negCount,total) + '）是' + dp.negLabel + '，' + dp.negLabel + '特征突出。',
-        impact: '💼 业务影响：在' + dp.negLabel + '相关场景中表现优异。'
-      });
-      var posPctVal = total > 0 ? posCount / total : 0;
-      var names = minorityNames(members, dp.pos);
-      // 少数派（此时 pos 是少数）占比 < 30% 才示风险
-      if(posPctVal < 0.3) {
-        risks.push({
-          icon: getRiskIcon(dp.pos),
-          title: dp.posLabel + '成员不足',
-          desc: '团队中' + dp.posLabel + '成员只有 ' + posCount + ' 人（' + pct(posCount,total) + '），可能存在短板。',
-          alert: dp.posLabel + '相关场景可能表现欠佳。',
-          fix: (names.length > 0 ? '涉及成员：' + names.join('、') + '。' : '') + '加强' + dp.posLabel + '相关培训；引入外部资源补充。'
-        });
-      }
     }
   });
 
   return { advantages: advantages, risks: risks };
 }
 
-function getAdvIcon(letter) {
-  var map = { A:'📊', R:'🤝', C:'⚔️', D:'🛡️', I:'💡', T:'🎯', B:'🤝', P:'🚀' };
-  return map[letter] || '✅';
-}
-function getRiskIcon(letter) { return '⚠️'; }
-
 /* ═══════════════════════════════════════════
-   5. 最佳拍档算法
+   6. 最佳拍档算法
    ═══════════════════════════════════════════ */
 function computePairs(members) {
   var bestMatchMap = {
@@ -400,80 +400,41 @@ function buildPairReason(p) {
   var sd1 = window.styleDefinitions[p.m1.code] || {};
   var sd2 = window.styleDefinitions[p.m2.code] || {};
   var dimText = p.diff === 4 ? '4 个维度全部不同' : p.diff + ' 个维度不同（' + p.dims.join('、') + '）';
-
   var values = [];
   if(p.dims.indexOf('A/I')>=0) {
-    var a = p.m1.code[0]==='A'?'数据分析':'直觉洞察';
-    var b = p.m2.code[0]==='A'?'数据分析':'直觉洞察';
-    values.push(p.m1.name+' 的'+a+' + '+p.m2.name+' 的'+b+' = 全面决策');
+    values.push(p.m1.name+' 的'+(p.m1.code[0]==='A'?'数据分析':'直觉洞察')+' + '+p.m2.name+' 的'+(p.m2.code[0]==='A'?'数据分析':'直觉洞察')+' = 全面决策');
   }
   if(p.dims.indexOf('R/T')>=0) {
-    var a = p.m1.code[1]==='R'?'关系维护':'任务执行';
-    var b = p.m2.code[1]==='R'?'关系维护':'任务执行';
-    values.push(a+' + '+b+' = 刚柔并济');
+    values.push((p.m1.code[1]==='R'?'关系维护':'任务执行')+' + '+(p.m2.code[1]==='R'?'关系维护':'任务执行')+' = 刚柔并济');
   }
   if(p.dims.indexOf('C/B')>=0) {
-    var a = p.m1.code[2]==='C'?'竞争意识':'合作共赢';
-    var b = p.m2.code[2]==='C'?'竞争意识':'合作共赢';
-    values.push(a+' + '+b+' = 平衡利益与关系');
+    values.push((p.m1.code[2]==='C'?'竞争意识':'合作共赢')+' + '+(p.m2.code[2]==='C'?'竞争意识':'合作共赢')+' = 平衡利益与关系');
   }
   if(p.dims.indexOf('D/P')>=0) {
-    var a = p.m1.code[3]==='D'?'防御谨慎':'开拓敏捷';
-    var b = p.m2.code[3]==='D'?'防御谨慎':'开拓敏捷';
-    values.push(a+' + '+b+' = 平衡风险与速度');
+    values.push((p.m1.code[3]==='D'?'防御谨慎':'开拓敏捷')+' + '+(p.m2.code[3]==='D'?'防御谨慎':'开拓敏捷')+' = 平衡风险与速度');
   }
   if(values.length===0) values.push('风格互补，协作潜力大');
-
   return '<strong>互补维度：</strong>'+dimText+'<br><strong>协作价值：</strong>'+values.join('；')+'<br><strong>推荐场景：</strong>战略供应商选择、重大合同谈判、成本优化项目';
 }
 
 /* ═══════════════════════════════════════════
-   6. 90 天行动计划算法
-   ═══════════════════════════════════════════
-   依据团队短板维度（少数派维度）生成：
-   - 第 1-30 天：认知对齐（理解差异、建立信任）
-   - 第 31-60 天：能力补齐（针对性培训、授权试点）
-   - 第 61-90 天：机制固化（流程优化、复盘调整）
-*/
+   7. 90 天行动计划 — 基于缺失能力
+   ═══════════════════════════════════════════ */
 function computeActionPlan(members, dim) {
-  var total = members.length;
-  var minorityDims = [];
-  if(dim.I > dim.A) minorityDims.push({ letter:'I', label:'直觉型', focus:'创新洞察' });
-  if(dim.T > dim.R) minorityDims.push({ letter:'T', label:'任务型', focus:'执行效率' });
-  if(dim.B > dim.C) minorityDims.push({ letter:'B', label:'合作型', focus:'合作共赢' });
-  if(dim.P > dim.D) minorityDims.push({ letter:'P', label:'开拓型', focus:'敏捷响应' });
-  if(dim.A > dim.I) minorityDims.push({ letter:'A', label:'分析型', focus:'数据分析' });
-  if(dim.R > dim.T) minorityDims.push({ letter:'R', label:'关系型', focus:'关系维护' });
-  if(dim.C > dim.B) minorityDims.push({ letter:'C', label:'竞争型', focus:'谈判竞争' });
-  if(dim.D > dim.P) minorityDims.push({ letter:'D', label:'防御型', focus:'风险控制' });
+  var cap = computeCapabilityCoverage(members);
 
-  // 找出最需要提升的维度（少数派）
-  var gaps = [];
-  if(dim.I < dim.A) gaps.push({ letter:'I', label:'直觉型', members:minorityNames(members,'I'), focus:'创新洞察与市场敏锐度' });
-  if(dim.T < dim.R) gaps.push({ letter:'T', label:'任务型', members:minorityNames(members,'T'), focus:'目标执行与效率提升' });
-  if(dim.B < dim.C) gaps.push({ letter:'B', label:'合作型', members:minorityNames(members,'B'), focus:'共赢思维与关系建设' });
-  if(dim.P < dim.D) gaps.push({ letter:'P', label:'开拓型', members:minorityNames(members,'P'), focus:'敏捷决策与快速响应' });
-  if(dim.A < dim.I) gaps.push({ letter:'A', label:'分析型', members:minorityNames(members,'A'), focus:'数据分析与逻辑推理' });
-  if(dim.R < dim.T) gaps.push({ letter:'R', label:'关系型', members:minorityNames(members,'R'), focus:'供应商关系维护' });
-  if(dim.C < dim.B) gaps.push({ letter:'C', label:'竞争型', members:minorityNames(members,'C'), focus:'谈判博弈与底线把控' });
-  if(dim.D < dim.P) gaps.push({ letter:'D', label:'防御型', members:minorityNames(members,'D'), focus:'风险识别与合规管控' });
-
-  // 根据短板生成行动计划
   var phase1 = '完成团队沟通工作坊，建立跨风格理解';
   var phase2 = '优化决策流程，建立分级授权机制';
   var phase3 = '复盘决策速度和准确性，调整人员配置';
 
-  if(gaps.length > 0) {
-    var g = gaps[0];
-    phase1 += '；为' + g.members.join('、') + '创造' + g.focus + '的发挥空间';
+  if(cap.missingCaps.length > 0) {
+    // Phase 1: 针对最关键的缺失能力引入认知
+    phase1 += '；重点识别团队在「' + cap.missingCaps.slice(0, 2).join('、') + '」方面的能力缺口';
   }
-  if(gaps.length > 1) {
-    var g2 = gaps[1];
-    phase2 += '；针对' + g2.label + '短板建立专项提升计划';
+  if(cap.missingCaps.length > 0) {
+    phase2 += '；针对' + cap.missingCaps.join('、') + '能力短板建立专项提升计划';
   }
-  if(gaps.length > 0) {
-    phase3 += '；重点评估' + gaps.map(function(g){ return g.label; }).join('、') + '维度的改善效果';
-  }
+  phase3 += '；评估' + cap.capPct + '% 能力覆盖率的提升效果';
 
   return [
     { phase: '第 1-30 天', text: phase1 },
@@ -483,98 +444,71 @@ function computeActionPlan(members, dim) {
 }
 
 /* ═══════════════════════════════════════════
-   7. 项目配置算法
-   ═══════════════════════════════════════════
-   根据成员风格组合推荐项目分工：
-   - 数据分析类：A 型成员牵头
-   - 供应商谈判：R 型建立关系 + C 型条款博弈
-   - 创新项目：I+P 型牵头
-   - 成本削减：T+C 型牵头
-   - 战略供应商管理：R+B 型主导
-*/
+   8. 项目配置算法
+   ═══════════════════════════════════════════ */
 function computeProjectConfig(members, dim) {
+  var cap = computeCapabilityCoverage(members);
   var configs = [];
 
-  // 数据分析类
   var aMembers = members.filter(function(m){ return m.code[0]==='A'; }).map(function(m){ return m.name; });
-  if(aMembers.length > 0) {
-    configs.push({ project:'数据分析类项目', config: aMembers[0] + '牵头' + (aMembers.length>1 ? '，' + aMembers.slice(1).join('、') + '配合' : '') });
-  }
+  if(aMembers.length > 0) configs.push({ project:'数据分析类项目', config: aMembers[0] + '牵头' + (aMembers.length>1 ? '，' + aMembers.slice(1).join('、') + '配合' : '') });
 
-  // 供应商谈判
   var rMembers = members.filter(function(m){ return m.code[1]==='R'; }).map(function(m){ return m.name; });
   var cMembers = members.filter(function(m){ return m.code[2]==='C'; }).map(function(m){ return m.name; });
-  if(rMembers.length > 0 && cMembers.length > 0) {
-    configs.push({ project:'供应商谈判', config: rMembers[0] + '主导关系建立，' + cMembers[0] + '负责条款博弈' });
-  }
+  if(rMembers.length > 0 && cMembers.length > 0) configs.push({ project:'供应商谈判', config: rMembers[0] + '主导关系建立，' + cMembers[0] + '负责条款博弈' });
 
-  // 创新项目
   var ipMembers = members.filter(function(m){ return m.code[0]==='I' || m.code[3]==='P'; }).map(function(m){ return m.name; });
-  if(ipMembers.length > 0) {
-    configs.push({ project:'创新试点项目', config: ipMembers[0] + '牵头' + (ipMembers.length>1 ? '，' + ipMembers[1] + '配合' : '') });
-  }
+  if(ipMembers.length > 0) configs.push({ project:'创新试点项目', config: ipMembers[0] + '牵头' + (ipMembers.length>1 ? '，' + ipMembers[1] + '配合' : '') });
 
-  // 成本削减
   var tcMembers = members.filter(function(m){ return m.code[1]==='T' || m.code[2]==='C'; }).map(function(m){ return m.name; });
-  if(tcMembers.length > 0) {
-    configs.push({ project:'成本削减项目', config: tcMembers[0] + '牵头' + (tcMembers.length>1 ? '，' + tcMembers[1] + '配合' : '') });
-  }
+  if(tcMembers.length > 0) configs.push({ project:'成本削减项目', config: tcMembers[0] + '牵头' + (tcMembers.length>1 ? '，' + tcMembers[1] + '配合' : '') });
 
-  // 战略供应商管理
   var rbMembers = members.filter(function(m){ return m.code[1]==='R' || m.code[2]==='B'; }).map(function(m){ return m.name; });
-  if(rbMembers.length > 0) {
-    configs.push({ project:'战略供应商管理', config: rbMembers[0] + '主导' + (rbMembers.length>1 ? '，' + rbMembers[1] + '配合维护高层关系' : '') });
+  if(rbMembers.length > 0) configs.push({ project:'战略供应商管理', config: rbMembers[0] + '主导' + (rbMembers.length>1 ? '，' + rbMembers[1] + '配合维护高层关系' : '') });
+
+  // 如果某类项目没有合适人员，标注风险
+  if(aMembers.length === 0 && cap.missingCaps.indexOf('数据分析') >= 0) {
+    configs.push({ project:'⚠️ 数据分析类项目', config: '团队暂无分析型成员，建议引入外部数据支持或紧急招聘' });
   }
 
   return configs;
 }
 
 /* ═══════════════════════════════════════════
-   8. 课程匹配算法
-   ═══════════════════════════════════════════
-   根据团队短板维度匹配课程标签
-*/
+   9. 课程匹配算法
+   ═══════════════════════════════════════════ */
 function matchCourses(courseLibrary, dim, members) {
-  var total = members.length;
-  var gaps = [];
-  if(dim.I < dim.A) gaps.push('I');
-  if(dim.T < dim.R) gaps.push('T');
-  if(dim.B < dim.C) gaps.push('B');
-  if(dim.P < dim.D) gaps.push('P');
-  if(dim.A < dim.I) gaps.push('A');
-  if(dim.R < dim.T) gaps.push('R');
-  if(dim.C < dim.B) gaps.push('C');
-  if(dim.D < dim.P) gaps.push('D');
-
-  // 按短板匹配度排序课程
+  var cap = computeCapabilityCoverage(members);
   var scored = (courseLibrary || []).map(function(c) {
     var matchCount = 0;
-    (c.tags || []).forEach(function(t) { if(gaps.indexOf(t) >= 0) matchCount++; });
+    (c.tags || []).forEach(function(t) { if(cap.missingCaps.indexOf(t) >= 0) matchCount++; });
     return { course: c, score: matchCount };
   }).sort(function(a,b){ return b.score - a.score; });
 
   return scored.map(function(s) {
     var c = s.course;
-    var matchText = s.score > 0 ? '精准匹配团队' + c.tags.filter(function(t){ return gaps.indexOf(t)>=0; }).join('、') + '维度短板' : '全面提升团队综合能力';
+    var matchText = s.score > 0
+      ? '精准匹配团队「' + c.tags.filter(function(t){ return cap.missingCaps.indexOf(t)>=0; }).join('、') + '」能力短板'
+      : '全面提升团队综合能力';
     return { name: c.name, teacher: '优链学堂 · 线下课', match: matchText, cta: c.cta, url: c.url };
   });
 }
 
 /* ═══════════════════════════════════════════
-   9. 维度洞察算法
+   10. 维度洞察算法
    ═══════════════════════════════════════════ */
 function buildDimensionInsight(key, dim, total, members) {
   var templates = {
     A: {
-      major: '团队偏向分析型决策，重视数据和逻辑。优势在于方案论证充分，风险识别准确；需注意避免过度分析导致决策延迟，建议为直觉型成员创造表达洞察的空间。',
+      major: '团队偏向分析型决策，重视数据和逻辑。优势在于方案论证充分，风险识别准确；需注意避免过度分析导致决策延迟。',
       minor: '团队偏向直觉型判断，敏锐度高。优势在于快速捕捉机会和创新突破；需加强数据验证，避免决策过于主观。'
     },
     R: {
-      major: '关系导向占优，团队氛围和谐，善于维护供应商关系。需平衡关系维护与任务达成，避免因人情影响谈判底线。',
+      major: '关系导向占优，团队氛围和谐，善于维护供应商关系。需平衡关系维护与任务达成。',
       minor: '任务导向占优，目标明确执行力强。需注意关系维护，避免过于强硬影响长期合作。'
     },
     C: {
-      major: '竞争意识较强，善于争取利益最大化。在供应商谈判中不易吃亏，但需注意长期合作关系的维护。',
+      major: '竞争意识较强，善于争取利益最大化。需注意长期合作关系的维护。',
       minor: '合作共赢意识强，善于建立长期合作关系。需注意底线把控，避免过度妥协。'
     },
     D: {
@@ -591,10 +525,11 @@ function buildDimensionInsight(key, dim, total, members) {
 }
 
 /* ═══════════════════════════════════════════
-   10. 渲染引擎
+   11. 渲染引擎
    ═══════════════════════════════════════════ */
 
 function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function el(id) { return document.getElementById(id); }
 
 function renderTeamReport() {
   var data = window.teamReportData;
@@ -603,6 +538,7 @@ function renderTeamReport() {
   var members = data.members;
   var total = members.length;
   var dim = countDimensions(members);
+  var cap = computeCapabilityCoverage(members);
 
   // 全部算法计算
   var score = computeScore(members, dim);
@@ -620,11 +556,11 @@ function renderTeamReport() {
   el('report-subtitle').textContent = data.meta.subtitle;
   el('report-date').textContent = '报告生成时间：' + data.meta.generatedAt;
 
-  // ── 评分（算法生成）──
+  // ── 评分 ──
   el('score-num').textContent = score.value;
   el('score-level').textContent = score.emoji + ' ' + score.level + ' · 超越 ' + score.percentile + '% 的采购团队';
 
-  // ── 团队概况（算法生成）──
+  // ── 团队概况 ──
   var testedCount = members.filter(function(m) { return m.code && m.code.length === 4; }).length;
   var pendingCount = total - testedCount;
   el('team-total').textContent = total;
@@ -633,9 +569,38 @@ function renderTeamReport() {
   el('team-tags').innerHTML =
     '<span class="tag">' + total + ' 人团队</span>' +
     '<span class="tag">' + testedCount + '/' + total + ' 已测试</span>' +
+    '<span class="tag">' + cap.capPct + '% 能力覆盖</span>' +
     '<span class="tag">' + esc(teamType.label) + '</span>';
   el('team-type-label').innerHTML = teamType.emoji + ' ' + esc(teamType.label);
   el('team-type-desc').textContent = teamType.desc;
+
+  // ── 能力覆盖卡片 ──
+  var covHtml = '<div style="margin-bottom:12px;">' +
+    '<div style="font-size:12px;color:#86868b;margin-bottom:8px;">对标 16 种风格 × 8 大能力全集</div>' +
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;">' +
+      '<div class="stat" style="flex:1;min-width:120px;"><div class="stat-num">' + cap.capPct + '%</div><div class="stat-label">能力覆盖</div></div>' +
+      '<div class="stat" style="flex:1;min-width:120px;"><div class="stat-num">' + cap.stylePct + '%</div><div class="stat-label">风格覆盖</div></div>' +
+      '<div class="stat" style="flex:1;min-width:120px;"><div class="stat-num">' + cap.missingCaps.length + '</div><div class="stat-label">能力缺口</div></div>' +
+    '</div></div>';
+
+  // 已有能力标签
+  covHtml += '<div style="margin-bottom:10px;"><div style="font-size:11px;color:#10b981;margin-bottom:4px;">✅ 已覆盖能力</div><div class="tag-row">';
+  cap.presentCaps.forEach(function(c) { covHtml += '<span class="tag">' + esc(c) + '</span>'; });
+  covHtml += '</div></div>';
+
+  // 缺失能力标签
+  if(cap.missingCaps.length > 0) {
+    covHtml += '<div><div style="font-size:11px;color:#f59e0b;margin-bottom:4px;">⚠️ 缺失能力</div><div class="tag-row">';
+    cap.missingCaps.forEach(function(c) { covHtml += '<span class="tag" style="background:rgba(245,158,11,0.2);color:#f59e0b;border-color:rgba(245,158,11,0.3);">' + esc(c) + '</span>'; });
+    covHtml += '</div></div>';
+  }
+
+  // 缺失风格数量
+  covHtml += '<div style="margin-top:10px;font-size:11px;color:#86868b;">' +
+    '16 种风格中已覆盖 ' + cap.styleCoverage + ' 种，缺失 ' + cap.missingStyles.length + ' 种';
+  covHtml += '</div>';
+
+  el('capability-container').innerHTML = covHtml;
 
   // ── 四维度 ──
   var dimKeys = [
@@ -698,7 +663,8 @@ function renderTeamReport() {
   var memHtml = '';
   roles.forEach(function(r) {
     var sd = window.styleDefinitions[r.code] || {};
-    memHtml += '<div class="member"><div class="avatar">' + esc(r.name.charAt(0)) + '</div><div class="member-info"><div class="member-name">' + esc(r.name) + ' · ' + esc(r.code) + ' ' + esc(sd.name||'') + ' ' + (sd.animal||'') + '</div><div class="member-code">' + esc(sd.dimension||'') + '</div></div><div class="member-status">✅ ' + esc(r.role) + '</div></div>';
+    var extra = r.coversMissing.length > 0 ? '<div style="font-size:10px;color:#f59e0b;margin-top:2px;">弥补：' + r.coversMissing.join('、') + '</div>' : '';
+    memHtml += '<div class="member"><div class="avatar">' + esc(r.name.charAt(0)) + '</div><div class="member-info"><div class="member-name">' + esc(r.name) + ' · ' + esc(r.code) + ' ' + esc(sd.name||'') + ' ' + (sd.animal||'') + '</div><div class="member-code">' + esc(sd.dimension||'') + '</div>' + extra + '</div><div class="member-status">✅ ' + esc(r.role) + '</div></div>';
   });
   el('members-container').innerHTML = memHtml;
 
@@ -710,12 +676,11 @@ function renderTeamReport() {
   el('action-plan-container').innerHTML = apHtml;
 
   // ── 项目配置建议 ──
-  var pcHtml = '<div class="recommendation-content">';
-  projectConfig.forEach(function(item, i) {
-    if(i>0) pcHtml += '</div><div class="recommendation-content">';
-    pcHtml += '<strong>' + esc(item.project) + '：</strong>' + esc(item.config);
+  var pcHtml = '';
+  projectConfig.forEach(function(item) {
+    var prefix = item.project.indexOf('⚠️') >= 0 ? '' : '';
+    pcHtml += '<div class="recommendation-content"><strong>' + esc(item.project) + '：</strong>' + esc(item.config) + '</div>';
   });
-  pcHtml += '</div>';
   el('project-config-container').innerHTML = pcHtml;
 
   // ── 推荐课程 ──
@@ -730,8 +695,6 @@ function renderTeamReport() {
   });
   el('courses-container').innerHTML = courseHtml;
 }
-
-function el(id) { return document.getElementById(id); }
 
 /* ── 自动初始化 ── */
 if(typeof document !== 'undefined') {
