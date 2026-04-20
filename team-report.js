@@ -29,18 +29,20 @@ if (typeof window.styleDefinitions === 'undefined') {
    ═══════════════════════════════════════════ */
 
 /**
- * 团队综合评分算法
+ * 团队综合评分算法（适配任意人数）
  * 基准分 50 分，根据以下维度加分（满分 100）：
- * ① 规模分（0-15）：人数越多协作基础越好
- * ② 多样性分（0-15）：风格种类越多互补越强
- * ③ 均衡分（0-20）：四个维度越均衡分数越高
- * ④ 互补分（0-15）：成员间互补配对比例越高越好
+ * ① 规模分（0-15）：对数增长，避免大团队天然占优
+ * ② 多样性分（0-15）：风格种类占比
+ * ③ 均衡分（0-20）：四个维度少数派占比之和
+ * ④ 互补分（0-15）：成员间互补配对比例
  */
 function computeScore(members, dim) {
   var total = members.length;
+  if(total === 0) return { value: 0, level: '数据不足', percentile: 0, emoji: '—' };
 
-  // ① 规模分：3人起 8 分，每多 1 人 +2 分，上限 15
-  var sizeScore = Math.min(15, 8 + Math.max(0, total - 3) * 2);
+  // ① 规模分：对数曲线，2人起分，渐近上限 15
+  // 3人=6, 5人=9, 10人=12, 20人=15
+  var sizeScore = Math.min(15, Math.round(3 + 4 * Math.log2(Math.max(2, total))));
 
   // ② 多样性分：unique styles / total，满分 15
   var unique = {};
@@ -208,7 +210,7 @@ function computeRoles(members, dim) {
       for(var k=0; k<4; k++) { if(code[k] !== other.code[k]) diff++; }
       if(diff >= 2) bridgeCount++;
     });
-    var bridge = bridgeCount / (total - 1);
+    var bridge = total > 1 ? bridgeCount / (total - 1) : 0;
 
     // ③ 均衡覆盖：该成员覆盖了多少个团队的少数派维度
     var minorityDims = [];
@@ -227,15 +229,18 @@ function computeRoles(members, dim) {
     // 综合评分
     var score = scarcity * 0.4 + bridge * 0.35 + balance * 0.25;
 
-    // 角色标签
+    // 角色标签（动态阈值，适配任意团队规模）
+    // 用百分位排名替代固定分数阈值
     var role;
-    if(score >= 0.7) {
+    if(sameCount === 1 && bridge >= 0.5 && total >= 3) {
+      // 唯一风格 + 能跟半数以上互补 + 团队≥3人 → 核心骨干
       role = '核心骨干';
-    } else if(score >= 0.5) {
-      // 根据最突出的维度细分
+    } else if(scarcity >= 0.5) {
+      // 风格稀有（团队占比 ≤ 1/2）
       if(balance >= 0.5) role = '桥梁角色';
-      else if(scarcity >= 0.5) role = '稀缺人才';
-      else role = '中坚力量';
+      else role = '稀缺人才';
+    } else if(bridge >= 0.5) {
+      role = '中坚力量';
     } else {
       role = '潜力新星';
     }
@@ -292,6 +297,7 @@ function computeAdvantagesAndRisks(members, dim) {
   dimPairs.forEach(function(dp) {
     var posCount = dim[dp.pos];
     var negCount = dim[dp.neg];
+    var negPctVal = total > 0 ? negCount / total : 0;
     if(posCount >= negCount) {
       advantages.push({
         icon: getAdvIcon(dp.pos),
@@ -299,12 +305,17 @@ function computeAdvantagesAndRisks(members, dim) {
         desc: '团队中 ' + posCount + ' 人（' + pct(posCount,total) + '）是' + dp.posLabel + '，' + dp.advDesc + '。',
         impact: '💼 业务影响：' + dp.advImpact + '。'
       });
-      if(negCount > 0) {
+      // 风险判定：少数派占比 < 30% 才视为真正风险（适配任意团队规模）
+      // negCount === 0 是最严重的风险（完全缺失该维度）
+      if(negPctVal < 0.3) {
         var names = minorityNames(members, dp.neg);
+        var riskDesc = negCount === 0
+          ? '团队中完全没有' + dp.negLabel + '成员，' + dp.riskDesc
+          : '团队中' + dp.negLabel + '成员只有 ' + negCount + ' 人（' + pct(negCount,total) + '），' + dp.riskDesc;
         risks.push({
           icon: getRiskIcon(dp.neg),
           title: dp.riskTitle,
-          desc: '团队中' + dp.negLabel + '成员只有 ' + negCount + ' 人（' + pct(negCount,total) + '），' + dp.riskDesc,
+          desc: riskDesc,
           alert: dp.riskAlert + '可能表现欠佳。',
           fix: (names.length > 0 ? '涉及成员：' + names.join('、') + '。' : '') + dp.riskFix + '。'
         });
@@ -316,14 +327,18 @@ function computeAdvantagesAndRisks(members, dim) {
         desc: '团队中 ' + negCount + ' 人（' + pct(negCount,total) + '）是' + dp.negLabel + '，' + dp.negLabel + '特征突出。',
         impact: '💼 业务影响：在' + dp.negLabel + '相关场景中表现优异。'
       });
+      var posPctVal = total > 0 ? posCount / total : 0;
       var names = minorityNames(members, dp.pos);
-      risks.push({
-        icon: getRiskIcon(dp.pos),
-        title: dp.posLabel + '成员不足',
-        desc: '团队中' + dp.posLabel + '成员只有 ' + posCount + ' 人（' + pct(posCount,total) + '），可能存在短板。',
-        alert: dp.posLabel + '相关场景可能表现欠佳。',
-        fix: (names.length > 0 ? '涉及成员：' + names.join('、') + '。' : '') + '加强' + dp.posLabel + '相关培训；引入外部资源补充。'
-      });
+      // 少数派（此时 pos 是少数）占比 < 30% 才示风险
+      if(posPctVal < 0.3) {
+        risks.push({
+          icon: getRiskIcon(dp.pos),
+          title: dp.posLabel + '成员不足',
+          desc: '团队中' + dp.posLabel + '成员只有 ' + posCount + ' 人（' + pct(posCount,total) + '），可能存在短板。',
+          alert: dp.posLabel + '相关场景可能表现欠佳。',
+          fix: (names.length > 0 ? '涉及成员：' + names.join('、') + '。' : '') + '加强' + dp.posLabel + '相关培训；引入外部资源补充。'
+        });
+      }
     }
   });
 
