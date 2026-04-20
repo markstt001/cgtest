@@ -96,6 +96,7 @@ function computeCapabilityCoverage(members) {
     missingCaps: missingCaps,
     capPct: Math.round(presentCaps.length / ALL_CAPABILITIES.length * 100),
     stylePct: Math.round(Object.keys(coveredStyles).length / ALL_STYLES.length * 100),
+    uniqueStyleCount: Object.keys(coveredStyles).length,
     missingStyles: missingStyles
   };
 }
@@ -103,12 +104,13 @@ function computeCapabilityCoverage(members) {
 /* ═══════════════════════════════════════════
    2. 团队综合评分算法
    ═══════════════════════════════════════════
- * 基准分 50 分，满分 100：
- * ① 能力覆盖（0-20）：8 大能力覆盖比例
- * ② 风格覆盖（0-15）：16 种风格覆盖比例
+ * 基准分 30 分，满分 100：
+ * ① 能力覆盖（0-15）：8 大能力覆盖比例
+ * ② 风格覆盖（0-10）：16 种风格覆盖比例
  * ③ 维度均衡（0-15）：四个维度少数派占比之和
  * ④ 互补指数（0-10）：两人配对中 ≥2 维不同的比例
  * ⑤ 规模分（0-10）：对数曲线，2人起分
+ * ⑥ 能力深度（0-10）：每个能力至少有2人覆盖（单点覆盖有断层风险）
  */
 function computeScore(members, dim) {
   var total = members.length;
@@ -148,7 +150,17 @@ function computeScore(members, dim) {
   // ⑤ 规模分：log2 曲线
   var sizeScore = Math.min(10, Math.round(1 + 3 * Math.log2(Math.max(2, total))));
 
-  var raw = 50 + capScore + styleScore + balanceScore + compScore + sizeScore;
+  // ⑥ 能力深度分：每个能力有多少人覆盖（单点覆盖有断层风险），满分 10
+  var depthScores = [];
+  ALL_CAPABILITIES.forEach(function(c) {
+    var count = members.filter(function(m) { return (STYLE_CAPABILITIES[m.code.toUpperCase()]||[]).indexOf(c) >= 0; }).length;
+    // 每个能力至少2人覆盖才安全
+    depthScores.push(Math.min(1, count / 2));
+  });
+  var avgDepth = depthScores.reduce(function(a,b){return a+b;},0) / depthScores.length;
+  var depthScore = Math.round(avgDepth * 10);
+
+  var raw = 30 + capScore + styleScore + balanceScore + compScore + sizeScore + depthScore;
   var value = Math.min(100, Math.max(0, raw));
 
   var level, emoji;
@@ -256,14 +268,18 @@ function computeRoles(members, dim) {
     var score = scarcity * 0.4 + bridge * 0.35 + balance * 0.25;
 
     var role;
-    if(sameCount === 1 && bridge >= 0.5 && total >= 3) {
+    if(total < 3) {
+      role = sameCount === 1 ? '独特风格' : '团队中坚';
+    } else if(sameCount === 1 && bridge >= 0.8 && total >= 4) {
       role = '核心骨干';
-    } else if(scarcity >= 0.5) {
+    } else if(sameCount === 1 && scarcity >= 0.5) {
       role = balance >= 0.3 ? '桥梁角色' : '稀缺人才';
-    } else if(bridge >= 0.5) {
+    } else if(bridge >= 0.7) {
       role = '中坚力量';
-    } else {
+    } else if(scarcity >= 0.5) {
       role = '潜力新星';
+    } else {
+      role = '成长中的力量';
     }
 
     return {
@@ -336,14 +352,24 @@ function computeAdvantagesAndRisks(members, dim) {
   dimPairs.forEach(function(dp) {
     var posCount = dim[dp.pos], negCount = dim[dp.neg];
     var negPctVal = total > 0 ? negCount / total : 0;
-    // 少数派占比 < 30% 时标注维度失衡
-    if(negPctVal < 0.3 && negPctVal > 0) {
-      var names = minorityNames(members, dp.neg);
+    // 少数派占比 < 30% 时标注维度失衡 → 风险
+    if(negPctVal < 0.3) {
+      var minorityNames_list = negPctVal > 0 ? minorityNames(members, dp.neg) : ['无'];
+      var severity = negPctVal === 0 ? '完全没有' + dp.negLabel + '成员' : dp.negLabel + '仅 ' + minorityNames_list.join('、') + '（' + Math.round(negPctVal*100) + '%）';
+      risks.push({
+        icon: '📐',
+        title: dp.posLabel + '主导（' + posCount + '/' + total + '）',
+        desc: '团队' + severity + '。' + (dp.pos === 'C' ? '竞争意识过强可能导致谈判零和化' : dp.pos === 'A' ? '过度分析可能延缓决策' : dp.pos === 'R' ? '过度注重关系可能牺牲利益' : '过度防御可能错失机会') + '。',
+        alert: dp.pos === 'C' ? '强势谈判可能损害供应商长期合作意愿' : dp.pos === 'A' ? '复杂决策可能因过度分析而延迟' : dp.pos === 'R' ? '关系优先可能导致成本妥协' : '过度谨慎可能错失市场窗口',
+        fix: '引入' + dp.negLabel + '思维培训；在关键决策中设置' + dp.negLabel + '角色；招聘补充' + dp.negLabel + '维度人才。'
+      });
+    } else if(negPctVal > 0.3) {
+      // 维度较均衡，作为优势展示
       advantages.push({
         icon: '📐',
-        title: dp.posLabel + '占优（' + posCount + '/' + total + '）',
-        desc: '团队偏向' + dp.posLabel + '，' + (dp.pos === 'A' ? '决策有数据支撑' : dp.pos === 'R' ? '善于维护关系' : dp.pos === 'C' ? '善于争取利益' : '风险意识强') + '。',
-        impact: '需注意' + dp.negLabel + '维度的短板。'
+        title: dp.posLabel + '/' + dp.negLabel + '较均衡',
+        desc: '团队在' + dp.posLabel + '和' + dp.negLabel + '之间保持了良好平衡。',
+        impact: '决策更全面，兼顾' + dp.posLabel.toLowerCase() + '和' + dp.negLabel.toLowerCase() + '视角。'
       });
     }
   });
@@ -479,17 +505,39 @@ function computeProjectConfig(members, dim) {
    ═══════════════════════════════════════════ */
 function matchCourses(courseLibrary, dim, members) {
   var cap = computeCapabilityCoverage(members);
+  var total = members.length;
+  // 短板维度：少数派占比 < 30% 的维度
+  var weakDims = [];
+  if(dim.A && dim.I) { if(dim.I/total < 0.3) weakDims.push('I'); if(dim.A/total < 0.3) weakDims.push('A'); }
+  if(dim.R && dim.T) { if(dim.T/total < 0.3) weakDims.push('T'); if(dim.R/total < 0.3) weakDims.push('R'); }
+  if(dim.C && dim.B) { if(dim.B/total < 0.3) weakDims.push('B'); if(dim.C/total < 0.3) weakDims.push('C'); }
+  if(dim.D && dim.P) { if(dim.P/total < 0.3) weakDims.push('P'); if(dim.D/total < 0.3) weakDims.push('D'); }
+
+  var dimLabelMap = { A:'分析型', I:'直觉型', R:'关系型', T:'任务型', C:'竞争型', B:'合作型', D:'防御型', P:'开拓型' };
+
   var scored = (courseLibrary || []).map(function(c) {
     var matchCount = 0;
-    (c.tags || []).forEach(function(t) { if(cap.missingCaps.indexOf(t) >= 0) matchCount++; });
+    (c.tags || []).forEach(function(t) {
+      // 优先匹配能力短板
+      if(cap.missingCaps.indexOf(t) >= 0) matchCount += 10;
+      // 其次匹配维度短板
+      if(weakDims.indexOf(t) >= 0) matchCount += 5;
+    });
     return { course: c, score: matchCount };
   }).sort(function(a,b){ return b.score - a.score; });
 
   return scored.map(function(s) {
     var c = s.course;
-    var matchText = s.score > 0
-      ? '精准匹配团队「' + c.tags.filter(function(t){ return cap.missingCaps.indexOf(t)>=0; }).join('、') + '」能力短板'
-      : '全面提升团队综合能力';
+    var matchText;
+    var matchedCaps = c.tags.filter(function(t){ return cap.missingCaps.indexOf(t)>=0; });
+    var matchedDims = c.tags.filter(function(t){ return weakDims.indexOf(t)>=0; });
+    if(matchedCaps.length > 0) {
+      matchText = '精准匹配团队「' + matchedCaps.join('、') + '」能力短板';
+    } else if(matchedDims.length > 0) {
+      matchText = '补齐团队「' + matchedDims.map(function(t){return dimLabelMap[t]||t;}).join('、') + '」维度短板';
+    } else {
+      matchText = '全面提升团队综合能力';
+    }
     return { name: c.name, teacher: '优链学堂 · 线下课', match: matchText, cta: c.cta, url: c.url };
   });
 }
@@ -597,7 +645,7 @@ function renderTeamReport() {
 
   // 缺失风格数量
   covHtml += '<div style="margin-top:10px;font-size:11px;color:#86868b;">' +
-    '16 种风格中已覆盖 ' + cap.styleCoverage + ' 种，缺失 ' + cap.missingStyles.length + ' 种';
+    '16 种风格中已覆盖 ' + cap.uniqueStyleCount + ' 种，缺失 ' + cap.missingStyles.length + ' 种';
   covHtml += '</div>';
 
   el('capability-container').innerHTML = covHtml;
