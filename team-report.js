@@ -713,18 +713,26 @@ function computeTrainingAdvice(members, dim, cap) {
 /* ═══════════════════════════════════════════
    10. 90 天行动计划 — 基于缺失能力
    ═══════════════════════════════════════════ */
-function computeActionPlan(members, dim) {
-  var cap = computeCapabilityCoverage(members);
+function computeActionPlan(risks, dim, members) {
+  var total = members.length;
+  var riskTypes = [];
+  risks.forEach(function(r) { riskTypes.push(r.title); });
 
   var phase1 = '完成团队沟通工作坊，建立跨风格理解';
-  var phase2 = '优化决策流程，建立分级授权机制';
-  var phase3 = '复盘决策速度和准确性，调整人员配置';
-
-  if(cap.missingCaps.length > 0) {
-    phase1 += '；重点识别团队在「' + cap.missingCaps.slice(0, 2).join('、') + '」方面的能力缺口';
-    phase2 += '；针对' + cap.missingCaps.join('、') + '能力短板建立专项提升计划';
+  if(riskTypes.some(function(t) { return t.indexOf('直觉') !== -1 || t.indexOf('开拓') !== -1; })) {
+    phase1 += '；为少数派成员授权创新试点项目';
+  } else {
+    phase1 += '；建立标准化工作流程';
   }
-  phase3 += '；评估' + cap.capPct + '% 能力覆盖率的提升效果';
+
+  var phase2 = '优化决策流程，建立分级授权机制';
+  if(riskTypes.some(function(t) { return t.indexOf('分析') !== -1 || t.indexOf('数据') !== -1; })) {
+    phase2 += '；启动数据收集和分析系统';
+  } else {
+    phase2 += '；启动市场情报收集系统';
+  }
+
+  var phase3 = '复盘决策速度和准确性；调整人员配置，最大化互补效应';
 
   return [
     { phase: '第 1-30 天', text: phase1 },
@@ -925,7 +933,7 @@ function renderTeamReport() {
   var pairing = computePairs(members);
   var hiringAdvice = computeHiringAdvice(members, dim, cap);
   var trainingAdvice = computeTrainingAdvice(members, dim, cap);
-  var actionPlan = computeActionPlan(members, dim);
+  var actionPlan = computeActionPlan(risks, dim, members);
   var projectConfig = computeProjectConfig(members, dim);
   var courses = matchCourses(data.courseLibrary, dim, members);
 
