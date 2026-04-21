@@ -279,25 +279,44 @@ function computeRoles(members, dim) {
 
     var score = scarcity * 0.4 + bridge * 0.35 + balance * 0.25;
 
+    // 计算少数维度数量（该维度持有者 ≤ team/2）
+    var dimCount = [{A:0,I:0},{R:0,T:0},{C:0,B:0},{D:0,P:0}];
+    members.forEach(function(mm) {
+      dimCount[0][mm.code[0]]++;
+      dimCount[1][mm.code[1]]++;
+      dimCount[2][mm.code[2]]++;
+      dimCount[3][mm.code[3]]++;
+    });
+    var minorityDims = 0;
+    var half = Math.ceil(total / 2);
+    if(dimCount[0][code[0]] <= half) minorityDims++;
+    if(dimCount[1][code[1]] <= half) minorityDims++;
+    if(dimCount[2][code[2]] <= half) minorityDims++;
+    if(dimCount[3][code[3]] <= half) minorityDims++;
+
     var role;
     if(total < 3) {
       role = sameCount === 1 ? '独特风格' : '团队中坚';
-    } else if(sameCount === 1 && bridge >= 0.8) {
-      // 唯一风格 + 与所有成员高度互补 → 核心骨干
+    } else if(code[0] === 'I' && dimCount[0].I === 1) {
+      // 团队中唯一的直觉型成员 → 洞察补充
+      role = '洞察补充';
+    } else if(code[3] === 'P' && dimCount[3].P === 1 && minorityDims >= 2) {
+      // 唯一的开拓型 + 至少2个少数维度 → 创新先锋
+      role = '创新先锋';
+    } else if(code[0] === 'A' && code[2] === 'C' && minorityDims >= 2) {
+      // 分析型 + 竞争型 + 至少2个少数维度 → 核心骨干
       role = '核心骨干';
-    } else if(bridge >= 0.6) {
-      // 与多数成员互补 → 桥梁角色
-      role = '桥梁角色';
-    } else if(sameCount === 1 && cap.missingCaps.length > 0 && balance >= 0.3) {
-      // 唯一风格 + 填补能力缺口 → 稀缺人才
-      role = '稀缺人才';
-    } else if(bridge >= 0.35 && sameCount === 1) {
-      // 有一定互补性 + 独特风格 → 风格代表
-      role = '风格代表';
-    } else if(scarcity >= 0.5) {
-      role = '潜力新星';
+    } else if(code[2] === 'C' && code[3] === 'D') {
+      // 竞争型 + 防御型 → 谈判主力
+      role = '谈判主力';
+    } else if(code[2] === 'B' && code[3] === 'P') {
+      // 合作型 + 开拓型 → 运营中坚
+      role = '运营中坚';
+    } else if(bridge >= 0.5) {
+      // 高互补性 → 协作力量
+      role = '协作力量';
     } else {
-      role = '成长中的力量';
+      role = '团队中坚';
     }
 
     return {
