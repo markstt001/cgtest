@@ -550,37 +550,94 @@ function getPairScenes(dims) {
 /* ═══════════════════════════════════════════
    8. 招聘建议算法 — 基于维度短板和能力缺口
    ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   8. 招聘建议算法 — 四要素结构
+   ═══════════════════════════════════════════ */
+
+// 风格→画像/岗位/面试映射表
+var HIRING_PROFILES = {
+  'A': { profile: 'ARCD（数据军师）或 ATCD（市场猎手）', jobs: ['数据分析岗', '成本分析岗'], interview: '场景模拟：给出一份供应商报价数据和市场趋势报告，请在 10 分钟内输出一份供应商评估建议。' },
+  'I': { profile: 'ITCP（社交牛人）或 IRCP（机会捕手）', jobs: ['市场情报岗', '创新采购岗'], interview: '场景模拟：面对全新供应商品类，如何在信息不足时做出判断？请描述你的决策过程。' },
+  'R': { profile: 'ARCP（关系达人）或 IRBP（和事佬）', jobs: ['供应商关系岗', '战略合作岗'], interview: '情景测试：战略供应商要求涨价 20%，同时内部催签合同，你如何平衡双方需求？' },
+  'T': { profile: 'ATCD（市场猎手）或 ITCD（变色龙）', jobs: ['战略寻源岗', '项目采购岗'], interview: '案例分析：如何在 3 天内完成一项成本削减 15% 的紧急采购任务？请列出关键步骤。' },
+  'C': { profile: 'ARCD（数据军师）或 ATCP（拍板侠）', jobs: ['商务谈判岗', '合同管理岗'], interview: '角色扮演：供应商报价高于预算 30%，请现场模拟你的谈判策略和底线把控。' },
+  'B': { profile: 'ARBP（流程管家）或 IRBP（和事佬）', jobs: ['供应商关系岗', '战略合作岗'], interview: '情景测试：供应商要求涨价 20%，如何在坚持底线的同时维护长期合作关系？' },
+  'D': { profile: 'ARBD（守门员）或 ATBD（逻辑控）', jobs: ['风控合规岗', '合同审核岗'], interview: '案例分析：一份新供应商合同中存在 3 处模糊条款，请指出潜在风险并提出修改建议。' },
+  'P': { profile: 'ARCP（关系达人）或 IRCP（机会捕手）', jobs: ['品类创新岗', '数字化采购岗'], interview: '案例分析：如何在一个传统品类中发现新的采购机会并推动落地？请描述具体思路。' }
+};
+
 function computeHiringAdvice(members, dim, cap) {
   var total = members.length;
-  var advice = [];
+  var weaknesses = []; // {letter, label, count, pct}
 
-  // 维度短板：<50% 的维度，建议招聘对应风格人才
+  // 维度短板：占比<50% 的维度
   DIM_PAIRS.forEach(function(dp) {
     var posCount = dim[dp.pos], negCount = dim[dp.neg];
     var minorityLabel, minorityCount, minorityLetter;
     if(negCount < posCount) { minorityLabel = dp.negLabel; minorityCount = negCount; minorityLetter = dp.neg; }
     else { minorityLabel = dp.posLabel; minorityCount = posCount; minorityLetter = dp.pos; }
     if(minorityCount / total < 0.5) {
-      advice.push({
-        title: '招聘' + minorityLabel + '人才',
-        desc: '团队中' + minorityLabel + '仅 ' + minorityCount + ' 人（' + pct(minorityCount, total) + '%），建议引入具备' + minorityLabel + '特质的采购/供应链人才，补充团队短板。'
-      });
+      weaknesses.push({ letter: minorityLetter, label: minorityLabel, count: minorityCount, pct: pct(minorityCount, total) });
     }
   });
 
-  // 能力缺失：建议招聘对应能力人才
-  cap.missingCaps.forEach(function(c) {
-    advice.push({
-      title: '招聘具备「' + c + '」能力的人才',
-      desc: '团队完全缺乏' + c + '能力，建议引入在' + c + '方面有专长的成员，建立团队能力基线。'
-    });
-  });
+  // 按人数升序排序（最缺的优先）
+  weaknesses.sort(function(a, b) { return a.count - b.count; });
 
-  if(advice.length === 0) {
-    advice.push({ title: '暂无紧急招聘需求', desc: '团队各维度占比较为均衡，8 大能力覆盖全面。可根据业务扩展需要持续优化人才结构。' });
+  if(weaknesses.length === 0) {
+    return {
+      hasWeakness: false,
+      priority: '低',
+      types: '',
+      profiles: '',
+      jobs: '',
+      interviewFocus: ''
+    };
   }
 
-  return advice;
+  // 优先招聘类型：取人数最少的 1-2 个维度短板
+  var topTypes = weaknesses.slice(0, Math.min(2, weaknesses.length));
+  var priority = topTypes[0].count === 0 ? '紧急' : topTypes[0].count === 1 ? '高' : '中';
+
+  var typeStr = topTypes.map(function(w) { return w.label + '（' + w.letter + '）'; }).join(' + ');
+  var profileStr = topTypes.map(function(w) { return HIRING_PROFILES[w.letter].profile; }).join('、');
+  var allJobs = [], seenJobs = {};
+  topTypes.forEach(function(w) {
+    HIRING_PROFILES[w.letter].jobs.forEach(function(j) {
+      if(!seenJobs[j]) { seenJobs[j] = true; allJobs.push(j); }
+    });
+  });
+  var jobStr = allJobs.join('、');
+
+  // 面试考察：按短板维度汇总考察要点
+  var interviewTraits = [];
+  topTypes.forEach(function(w) {
+    var l = w.letter;
+    if(l === 'I' || l === 'P') { interviewTraits.push('市场敏锐度'); interviewTraits.push('创新思维'); interviewTraits.push('快速决策能力'); }
+    else if(l === 'A') { interviewTraits.push('数据分析能力'); interviewTraits.push('逻辑推理能力'); }
+    else if(l === 'T') { interviewTraits.push('目标导向'); interviewTraits.push('任务推进能力'); }
+    else if(l === 'R') { interviewTraits.push('关系维护意识'); interviewTraits.push('冲突化解能力'); }
+    else if(l === 'C') { interviewTraits.push('竞争意识'); interviewTraits.push('底线把控能力'); }
+    else if(l === 'B') { interviewTraits.push('合作共赢意识'); interviewTraits.push('长期关系建设能力'); }
+    else if(l === 'D') { interviewTraits.push('风险识别能力'); interviewTraits.push('合规意识'); }
+  });
+  // 去重
+  var uniqueTraits = [], seenTraits = {};
+  interviewTraits.forEach(function(t) { if(!seenTraits[t]) { seenTraits[t] = true; uniqueTraits.push(t); } });
+  var interviewStr = '重点考察候选人的' + uniqueTraits.join('、');
+
+  // 具体面试场景（取第一个短板维度的场景题）
+  var scenarioStr = HIRING_PROFILES[topTypes[0].letter].interview;
+
+  return {
+    hasWeakness: true,
+    priority: priority,
+    types: typeStr,
+    profiles: profileStr,
+    jobs: jobStr,
+    interviewFocus: interviewStr,
+    scenario: scenarioStr
+  };
 }
 
 /* ═══════════════════════════════════════════
@@ -884,8 +941,76 @@ function renderTeamReport() {
 
   pairing.unpaired.forEach(function(m) {
     var sd = window.styleDefinitions[m.code] || {};
-    var independentDesc = esc(m.name) + ' 的风格（' + esc(m.code) + ' · ' + esc(sd.name||'') + esc(sd.animal||'') + '）在团队中具有独特价值，可作为跨组协调人或特殊项目顾问。';
-    pairHtml += '<div class="pair"><div class="pair-title">📌 ' + esc(m.name) + ' · 独立角色</div><div class="pair-members"><div class="pair-member"><div class="pair-avatar">' + esc(sd.animal||'👤') + '</div><div class="pair-name">' + esc(m.name) + '</div><div class="pair-code">' + esc(m.code) + '</div></div></div><div class="pair-reason">' + independentDesc + '</div></div>';
+    var code = m.code.toUpperCase();
+
+    // 分析该成员的4个维度，哪些在团队中是少数派/唯一
+    var dimCount = [{A:0,I:0},{R:0,T:0},{C:0,B:0},{D:0,P:0}];
+    var dimNames = ['信息获取', '决策导向', '处事方式', '行动策略'];
+    var dimLabels2 = [['A','分析型'],['I','直觉型'],['R','关系型'],['T','任务型'],['C','竞争型'],['B','合作型'],['D','防御型'],['P','开拓型']];
+    members.forEach(function(mm) {
+      dimCount[0][mm.code[0]]++;
+      dimCount[1][mm.code[1]]++;
+      dimCount[2][mm.code[2]]++;
+      dimCount[3][mm.code[3]]++;
+    });
+
+    var uniqueDims = [], minorityDims = [];
+    for(var di=0; di<4; di++) {
+      var c = dimCount[di][code[di]];
+      if(c === 1) uniqueDims.push({dim: dimNames[di], letter: code[di], label: dimLabels2[code[di]==='A'||code[di]==='I'?(code[di]==='A'?0:1):di*2+(code[di]==='R'||code[di]==='C'||code[di]==='D'?0:1)][1]});
+      if(c <= Math.ceil(members.length/2)) minorityDims.push({dim: dimNames[di], letter: code[di], label: dimLabels2[code[di]==='A'||code[di]==='I'?(code[di]==='A'?0:1):di*2+(code[di]==='R'||code[di]==='C'||code[di]==='D'?0:1)][1]});
+    }
+
+    // 生成 2-3 条协作建议
+    var collabSuggestions = [];
+    var firstLetter = code[0];
+    var secondLetter = code[1];
+    var thirdLetter = code[2];
+    var fourthLetter = code[3];
+
+    // 建议1：基于第一维度（A/I）的协作定位
+    if(firstLetter === 'A') {
+      collabSuggestions.push('📊 <strong>数据决策担当：</strong>在供应商评估和成本分析等场景中主动提供数据支撑，帮助直觉型成员将市场嗅觉转化为可量化的决策依据。');
+    } else {
+      collabSuggestions.push('💡 <strong>创新洞察担当：</strong>在新品类引入和市场趋势判断中优先分享洞察，帮助团队发现数据之外的非量化机会。');
+    }
+
+    // 建议2：基于第二维度（R/T）的协作定位
+    if(secondLetter === 'R') {
+      collabSuggestions.push('🤝 <strong>关系协调担当：</strong>在跨部门协作和供应商关系管理中发挥润滑作用，确保团队在推进任务的同时维护长期合作关系。');
+    } else {
+      collabSuggestions.push('⚡ <strong>执行推进担当：</strong>在关键节点主动推动进度，确保团队不会因过度协商而延误交付。');
+    }
+
+    // 建议3：基于第三+四维度的协作定位
+    if(thirdLetter === 'C' && fourthLetter === 'D') {
+      collabSuggestions.push('🛡️ <strong>谈判防守担当：</strong>在关键谈判中负责底线把控和风险识别，与开拓型成员形成攻守平衡。');
+    } else if(thirdLetter === 'C' && fourthLetter === 'P') {
+      collabSuggestions.push('⚔️ <strong>敏捷博弈担当：</strong>在需要快速响应的谈判场景中兼顾竞争意识和行动速度，适合紧急采购和供应商切换。');
+    } else if(thirdLetter === 'B' && fourthLetter === 'D') {
+      collabSuggestions.push('🔒 <strong>稳健合作担当：</strong>在战略供应商管理中发挥主导作用，确保合作框架下风险可控。');
+    } else if(thirdLetter === 'B' && fourthLetter === 'P') {
+      collabSuggestions.push('🌱 <strong>创新协作担当：</strong>在联合创新项目中搭建桥梁，推动双赢合作的同时尝试新方法。');
+    }
+
+    // 独特价值总结
+    var valueSummary = '';
+    if(uniqueDims.length >= 2) {
+      valueSummary = m.name + ' 在 ' + uniqueDims.map(function(d){return d.label;}).join('、') + ' 方面是团队中的唯一持有者，为团队带来差异化视角。';
+    } else if(uniqueDims.length === 1) {
+      valueSummary = m.name + ' 是团队中唯一的' + uniqueDims[0].label + '成员，在' + uniqueDims[0].dim + '维度上具有不可替代性。';
+    } else {
+      valueSummary = m.name + ' 的风格（' + esc(code) + ' · ' + esc(sd.name||'') + esc(sd.animal||'') + '）为团队带来独特的协作价值。';
+    }
+
+    pairHtml += '<div class="pair">' +
+      '<div class="pair-title">📌 ' + esc(m.name) + ' · 独立角色</div>' +
+      '<div class="pair-members"><div class="pair-member"><div class="pair-avatar">' + esc(sd.animal||'👤') + '</div><div class="pair-name">' + esc(m.name) + '</div><div class="pair-code">' + esc(code) + '</div></div></div>' +
+      '<div class="pair-reason">' +
+        '<div style="margin-bottom:8px;">' + esc(valueSummary) + '</div>' +
+        '<div style="font-size:12px;color:#d4af37;font-weight:600;margin-bottom:6px;">💡 协作建议</div>' +
+        '<div style="font-size:12px;color:#cccccc;line-height:1.8;">' + collabSuggestions.join('<br>') + '</div>' +
+      '</div></div>';
   });
   el('pairs-container').innerHTML = pairHtml;
 
@@ -898,11 +1023,23 @@ function renderTeamReport() {
   });
   el('members-container').innerHTML = memHtml;
 
-  // ── 招聘建议（新增） ──
+  // ── 招聘建议（四要素结构） ──
   var hireHtml = '';
-  hiringAdvice.forEach(function(item) {
-    hireHtml += '<div class="recommendation-content"><strong>' + esc(item.title) + '：</strong>' + esc(item.desc) + '</div>';
-  });
+  if(hiringAdvice.hasWeakness) {
+    hireHtml += '<div style="margin-bottom:16px;">' +
+      '<div style="font-size:12px;color:#86868b;margin-bottom:8px;">📌 招聘建议（优先级：<span style="color:' + (hiringAdvice.priority==='紧急'?'#ef4444':hiringAdvice.priority==='高'?'#f59e0b':'#10b981') + ';">' + hiringAdvice.priority + '</span>）</div>' +
+      '<div class="recommendation-content"><strong>优先招聘类型：</strong>' + esc(hiringAdvice.types) + '</div>' +
+      '<div class="recommendation-content"><strong>目标画像：</strong>' + esc(hiringAdvice.profiles) + '</div>' +
+      '<div class="recommendation-content"><strong>岗位建议：</strong>' + esc(hiringAdvice.jobs) + '</div>' +
+      '<div class="recommendation-content"><strong>面试考察：</strong>' + esc(hiringAdvice.interviewFocus) + '</div>' +
+      '<div style="margin-top:8px;padding:10px;background:rgba(245,158,11,0.08);border-radius:8px;border-left:3px solid #f59e0b;">' +
+        '<div style="font-size:11px;color:#d4af37;margin-bottom:4px;">🎯 面试场景题示例</div>' +
+        '<div style="font-size:12px;color:#cccccc;">' + esc(hiringAdvice.scenario) + '</div>' +
+      '</div>' +
+    '</div>';
+  } else {
+    hireHtml += '<div class="recommendation-content">📌 团队配置均衡，暂无明显短板。可根据业务扩展需求补充人才。</div>';
+  }
   el('hiring-advice-container').innerHTML = hireHtml;
 
   // ── 培训建议（新增） ──
