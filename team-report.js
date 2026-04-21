@@ -670,44 +670,102 @@ function computeHiringAdvice(members, dim, cap) {
    ═══════════════════════════════════════════ */
 function computeTrainingAdvice(members, dim, cap) {
   var total = members.length;
-  var team = [];
-  var individuals = [];
+  var team = []; // {title, recommendedCourse}
+  var individuals = []; // {names, training}
 
-  // 团队培训：基于短板维度
+  // 维度失衡→团队培训映射表
+  var TRAINING_MAP = {
+    'A>I': { title: '数据分析深度训练', recommendedCourse: '数据分析实战课' },
+    'I>A': { title: '创新思维训练', recommendedCourse: '设计思维工作坊' },
+    'R>T': { title: '关系维护与冲突化解', recommendedCourse: '供应商关系管理培训' },
+    'T>R': { title: '任务管理与执行效率', recommendedCourse: '敏捷决策工作坊' },
+    'C>B': { title: '竞争谈判策略培训', recommendedCourse: '谈判博弈实战课' },
+    'B>C': { title: '合作共赢思维', recommendedCourse: '长期合作框架建设' },
+    'D>P': { title: '风险管控培训', recommendedCourse: '风险识别与规避能力' },
+    'P>D': { title: '风险承担训练', recommendedCourse: '在可控范围内尝试新方法' }
+  };
+
+  // 维度失衡→团队培训
   DIM_PAIRS.forEach(function(dp) {
-    var minorityLabel, minorityCount, minorityLetter;
-    if(dim[dp.neg] < dim[dp.pos]) { minorityLabel = dp.negLabel; minorityCount = dim[dp.neg]; minorityLetter = dp.neg; }
-    else { minorityLabel = dp.posLabel; minorityCount = dim[dp.pos]; minorityLetter = dp.pos; }
-    if(minorityCount / total < 0.5) {
-      team.push('开展' + minorityLabel + '思维工作坊，帮助团队建立' + minorityLabel + '视角');
+    var posCount = dim[dp.pos], negCount = dim[dp.neg];
+    var key, minorityLetter;
+    if(negCount < posCount) {
+      // 少数派是neg（如 I<A）→ 需要补充neg → key='A>I'（majority>minority）
+      key = dp.pos + '>' + dp.neg;
+      minorityLetter = dp.neg;
+    } else if(posCount < negCount) {
+      // 少数派是pos → key='I>A'
+      key = dp.neg + '>' + dp.pos;
+      minorityLetter = dp.pos;
+    } else {
+      return; // 均衡，不需要
+    }
+    var training = TRAINING_MAP[key];
+    if(training) {
+      team.push({ title: training.title, recommendedCourse: training.recommendedCourse });
     }
   });
 
-  // 能力缺口培训
-  if(cap.missingCaps.length > 0) {
-    team.push('针对「' + cap.missingCaps.join('、') + '」能力短板，安排专项培训课程');
+  // 跨风格沟通：有维度失衡就加
+  var imbalancedDims = [];
+  DIM_PAIRS.forEach(function(dp) {
+    if(Math.min(dim[dp.pos], dim[dp.neg]) > 0 && dim[dp.pos] !== dim[dp.neg]) {
+      imbalancedDims.push(dp.pos + '/' + dp.neg);
+    }
+  });
+  if(imbalancedDims.length > 0) {
+    team.push({ title: '跨风格沟通', recommendedCourse: 'DISC 或 MBTI 培训' });
   }
 
   if(team.length === 0) {
-    team.push('团队能力覆盖全面，建议定期开展跨风格交流活动，持续提升协作效率');
+    team.push({ title: '团队能力覆盖全面', recommendedCourse: '持续进行跨风格沟通训练' });
   }
 
-  // 个人发展建议
-  members.forEach(function(m) {
-    var code = m.code.toUpperCase();
-    var memberCaps = STYLE_CAPABILITIES[code] || [];
-    // 找出该成员未覆盖的能力（个人短板）
-    var personalGaps = ALL_CAPABILITIES.filter(function(c) { return memberCaps.indexOf(c) < 0; });
-    if(personalGaps.length > 0) {
-      individuals.push({
-        name: m.name,
-        code: m.code,
-        desc: '建议重点提升「' + personalGaps.join('、') + '」能力，可通过跨组协作、专项培训或导师辅导等方式补强。'
-      });
+  // 个人发展：按少数派维度分组
+  var dimGroups = [];
+  DIM_PAIRS.forEach(function(dp) {
+    var posCount = dim[dp.pos], negCount = dim[dp.neg];
+    var minorityLetter, training;
+    if(posCount < negCount) {
+      minorityLetter = dp.pos;
+    } else if(negCount < posCount) {
+      minorityLetter = dp.neg;
+    } else {
+      return; // 均衡，不需要
     }
+    // 找出少数派具体是谁
+    var minorityNames = [];
+    members.forEach(function(m) {
+      var idx;
+      if(minorityLetter === 'A' || minorityLetter === 'I') idx = 0;
+      else if(minorityLetter === 'R' || minorityLetter === 'T') idx = 1;
+      else if(minorityLetter === 'C' || minorityLetter === 'B') idx = 2;
+      else idx = 3;
+      if(m.code.toUpperCase()[idx] === minorityLetter) minorityNames.push(m.name);
+    });
+    // 训练方向
+    if(minorityLetter === 'I') training = '创新思维和市场洞察';
+    else if(minorityLetter === 'A') training = '数据分析与逻辑论证';
+    else if(minorityLetter === 'R') training = '关系维护与冲突化解';
+    else if(minorityLetter === 'T') training = '任务管理与执行效率';
+    else if(minorityLetter === 'C') training = '谈判博弈与底线意识';
+    else if(minorityLetter === 'B') training = '合作共赢与长期关系建设';
+    else if(minorityLetter === 'P') training = '快速决策和敏捷响应';
+    else if(minorityLetter === 'D') training = '风险识别和管控能力';
+    dimGroups.push({ names: minorityNames, training: training });
   });
 
-  return { team: team, individuals: individuals };
+  individuals = dimGroups;
+
+  // 计算优先级
+  var minMinorityCount = total;
+  DIM_PAIRS.forEach(function(dp) {
+    var m = Math.min(dim[dp.pos], dim[dp.neg]);
+    if(m < minMinorityCount) minMinorityCount = m;
+  });
+  var priority = minMinorityCount === 0 ? '紧急' : minMinorityCount === 1 ? '高' : '中';
+
+  return { team: team, individuals: individuals, priority: priority };
 }
 
 /* ═══════════════════════════════════════════
@@ -1145,22 +1203,27 @@ function renderTeamReport() {
   }
   el('hiring-advice-container').innerHTML = hireHtml;
 
-  // ── 培训建议（新增） ──
+  // ── 培训建议 ──
   var trainHtml = '';
+  var priorityColor = trainingAdvice.priority === '紧急' ? '#ef4444' : trainingAdvice.priority === '高' ? '#f59e0b' : '#10b981';
+  trainHtml += '<div style="margin-bottom:16px;">';
+  trainHtml += '<div style="font-size:12px;color:#86868b;margin-bottom:10px;">📚 培训建议（优先级：<span style="color:' + priorityColor + ';">' + trainingAdvice.priority + '</span>）</div>';
   // 团队培训
-  trainHtml += '<div style="margin-bottom:12px;"><div style="font-size:13px;color:#86868b;font-weight:600;margin-bottom:8px;">🏢 团队培训</div>';
-  trainingAdvice.team.forEach(function(item) {
-    trainHtml += '<div class="recommendation-content" style="margin-bottom:6px;">• ' + esc(item) + '</div>';
+  trainHtml += '<div style="margin-bottom:14px;"><div style="font-size:13px;color:#d4af37;font-weight:600;margin-bottom:8px;">团队培训</div>';
+  trainingAdvice.team.forEach(function(item, idx) {
+    var coursePart = item.recommendedCourse ? '（推荐：' + esc(item.recommendedCourse) + '）' : '';
+    trainHtml += '<div class="recommendation-content" style="margin-bottom:6px;">' + (idx+1) + '. ' + esc(item.title) + coursePart + '</div>';
   });
   trainHtml += '</div>';
   // 个人发展
   if(trainingAdvice.individuals.length > 0) {
-    trainHtml += '<div><div style="font-size:13px;color:#86868b;font-weight:600;margin-bottom:8px;">👤 个人发展建议</div>';
+    trainHtml += '<div><div style="font-size:13px;color:#d4af37;font-weight:600;margin-bottom:8px;">个人发展</div>';
     trainingAdvice.individuals.forEach(function(item) {
-      trainHtml += '<div class="recommendation-content" style="margin-bottom:6px;"><strong>' + esc(item.name) + '（' + esc(item.code) + '）：</strong>' + esc(item.desc) + '</div>';
+      trainHtml += '<div class="recommendation-content" style="margin-bottom:6px;">• ' + esc(item.names.join('/')) + '：加强' + esc(item.training) + '训练</div>';
     });
     trainHtml += '</div>';
   }
+  trainHtml += '</div>';
   el('training-advice-container').innerHTML = trainHtml;
 
   // ── 90 天行动计划 ──
