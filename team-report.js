@@ -282,12 +282,18 @@ function computeRoles(members, dim) {
     var role;
     if(total < 3) {
       role = sameCount === 1 ? '独特风格' : '团队中坚';
-    } else if(sameCount === 1 && bridge >= 0.8 && total >= 4) {
+    } else if(sameCount === 1 && bridge >= 0.8) {
+      // 唯一风格 + 与所有成员高度互补 → 核心骨干
       role = '核心骨干';
-    } else if(sameCount === 1 && scarcity >= 0.5) {
-      role = balance >= 0.3 ? '桥梁角色' : '稀缺人才';
-    } else if(bridge >= 0.7) {
-      role = '中坚力量';
+    } else if(bridge >= 0.6) {
+      // 与多数成员互补 → 桥梁角色
+      role = '桥梁角色';
+    } else if(sameCount === 1 && cap.missingCaps.length > 0 && balance >= 0.3) {
+      // 唯一风格 + 填补能力缺口 → 稀缺人才
+      role = '稀缺人才';
+    } else if(bridge >= 0.35 && sameCount === 1) {
+      // 有一定互补性 + 独特风格 → 风格代表
+      role = '风格代表';
     } else if(scarcity >= 0.5) {
       role = '潜力新星';
     } else {
@@ -716,23 +722,93 @@ function computeProjectConfig(members, dim) {
   var configs = [];
 
   var aMembers = members.filter(function(m){ return m.code[0]==='A'; }).map(function(m){ return m.name; });
-  if(aMembers.length > 0) configs.push({ project:'数据分析类项目', config: aMembers[0] + '牵头' + (aMembers.length>1 ? '，' + aMembers.slice(1).join('、') + '配合' : '') });
-
+  var iMembers = members.filter(function(m){ return m.code[0]==='I'; }).map(function(m){ return m.name; });
   var rMembers = members.filter(function(m){ return m.code[1]==='R'; }).map(function(m){ return m.name; });
+  var tMembers = members.filter(function(m){ return m.code[1]==='T'; }).map(function(m){ return m.name; });
   var cMembers = members.filter(function(m){ return m.code[2]==='C'; }).map(function(m){ return m.name; });
-  if(rMembers.length > 0 && cMembers.length > 0) configs.push({ project:'供应商谈判', config: rMembers[0] + '主导关系建立，' + cMembers[0] + '负责条款博弈' });
+  var bMembers = members.filter(function(m){ return m.code[2]==='B'; }).map(function(m){ return m.name; });
+  var pMembers = members.filter(function(m){ return m.code[3]==='P'; }).map(function(m){ return m.name; });
 
-  var ipMembers = members.filter(function(m){ return m.code[0]==='I' || m.code[3]==='P'; }).map(function(m){ return m.name; });
-  if(ipMembers.length > 0) configs.push({ project:'创新试点项目', config: ipMembers[0] + '牵头' + (ipMembers.length>1 ? '，' + ipMembers[1] + '配合' : '') });
+  // 数据分析类：分析型牵头，搭配竞争型/任务型配合 — 数据支撑驱动理性决策
+  if(aMembers.length > 0) {
+    var lead = aMembers[0];
+    var partner = (cMembers.length > 0 && cMembers[0] !== lead) ? cMembers[0] :
+                  (tMembers.length > 0 && tMembers[0] !== lead) ? tMembers[0] :
+                  (aMembers.length > 1 ? aMembers[1] : '');
+    configs.push({ project:'数据分析类项目', config: lead + '牵头' + (partner ? '，' + partner + '配合' : ''), theme: '数据支撑驱动理性决策' });
+  }
 
-  var tcMembers = members.filter(function(m){ return m.code[1]==='T' || m.code[2]==='C'; }).map(function(m){ return m.name; });
-  if(tcMembers.length > 0) configs.push({ project:'成本削减项目', config: tcMembers[0] + '牵头' + (tcMembers.length>1 ? '，' + tcMembers[1] + '配合' : '') });
+  // 供应商谈判：关系型主导 + 分析型数据支撑 + 竞争型条款博弈 — 协作制胜
+  if(rMembers.length > 0) {
+    var negoAssigned = {};
+    var relLead = rMembers[0];
+    negoAssigned[relLead] = true;
+    var negoParts = [relLead + '主导关系建立'];
+    var dataSup = '';
+    for(var di = 0; di < aMembers.length; di++) {
+      if(!negoAssigned[aMembers[di]]) { dataSup = aMembers[di]; negoAssigned[dataSup] = true; break; }
+    }
+    if(dataSup) negoParts.push(dataSup + '负责数据支撑');
+    var compNego = '';
+    for(var ci = 0; ci < cMembers.length; ci++) {
+      if(!negoAssigned[cMembers[ci]]) { compNego = cMembers[ci]; negoAssigned[compNego] = true; break; }
+    }
+    if(compNego) negoParts.push(compNego + '负责条款博弈');
+    configs.push({ project:'供应商谈判', config: negoParts.join('，'), theme: '协作制胜' });
+  }
 
-  var rbMembers = members.filter(function(m){ return m.code[1]==='R' || m.code[2]==='B'; }).map(function(m){ return m.name; });
-  if(rbMembers.length > 0) configs.push({ project:'战略供应商管理', config: rbMembers[0] + '主导' + (rbMembers.length>1 ? '，' + rbMembers[1] + '配合维护高层关系' : '') });
+  // 创新试点：直觉型牵头 + 开拓型把控流程风险 — 洞察驱动创新
+  if(iMembers.length > 0) {
+    var innLead = iMembers[0];
+    var innAssigned = {}; innAssigned[innLead] = true;
+    var innPartner = '';
+    for(var pi = 0; pi < pMembers.length; pi++) {
+      if(!innAssigned[pMembers[pi]]) { innPartner = pMembers[pi]; innAssigned[innPartner] = true; break; }
+    }
+    if(!innPartner) {
+      for(var bi = 0; bi < bMembers.length; bi++) {
+        if(!innAssigned[bMembers[bi]]) { innPartner = bMembers[bi]; break; }
+      }
+    }
+    configs.push({ project:'创新试点项目', config: innLead + '牵头' + (innPartner ? '，' + innPartner + '把控流程风险' : ''), theme: '洞察驱动创新' });
+  }
+
+  // 成本削减：竞争型牵头 + 任务型推进执行 — 博弈与效率并重
+  if(cMembers.length > 0) {
+    var costAssigned = {};
+    var costLead = cMembers.length > 1 ? cMembers[1] : cMembers[0];
+    costAssigned[costLead] = true;
+    var costPartner = '';
+    for(var ti = 0; ti < tMembers.length; ti++) {
+      if(!costAssigned[tMembers[ti]]) { costPartner = tMembers[ti]; costAssigned[costPartner] = true; break; }
+    }
+    if(!costPartner) {
+      for(var ai = 0; ai < aMembers.length; ai++) {
+        if(!costAssigned[aMembers[ai]]) { costPartner = aMembers[ai]; break; }
+      }
+    }
+    configs.push({ project:'成本削减项目', config: costLead + '牵头' + (costPartner ? '，' + costPartner + '推进执行' : ''), theme: '博弈与效率并重' });
+  }
+
+  // 战略供应商管理：合作型主导 + 关系型配合 — 长期共赢
+  if(bMembers.length > 0) {
+    var stratAssigned = {};
+    var stratLead = bMembers[0];
+    stratAssigned[stratLead] = true;
+    var stratPartner = '';
+    for(var ri = 0; ri < rMembers.length; ri++) {
+      if(!stratAssigned[rMembers[ri]]) { stratPartner = rMembers[ri]; stratAssigned[stratPartner] = true; break; }
+    }
+    if(!stratPartner) {
+      for(var ii = 0; ii < iMembers.length; ii++) {
+        if(!stratAssigned[iMembers[ii]]) { stratPartner = iMembers[ii]; break; }
+      }
+    }
+    configs.push({ project:'战略供应商管理', config: stratLead + '主导' + (stratPartner ? '，' + stratPartner + '配合维护高层关系' : ''), theme: '长期共赢' });
+  }
 
   if(aMembers.length === 0 && cap.missingCaps.indexOf('数据分析') >= 0) {
-    configs.push({ project:'⚠️ 数据分析类项目', config: '团队暂无分析型成员，建议引入外部数据支持或紧急招聘' });
+    configs.push({ project:'⚠️ 数据分析类项目', config: '团队暂无分析型成员，建议引入外部数据支持或紧急招聘', theme: '' });
   }
 
   return configs;
@@ -1070,7 +1146,8 @@ function renderTeamReport() {
   // ── 项目配置建议 ──
   var pcHtml = '';
   projectConfig.forEach(function(item) {
-    pcHtml += '<div class="recommendation-content"><strong>' + esc(item.project) + '：</strong>' + esc(item.config) + '</div>';
+    var themeStr = item.theme ? ' — <em style="color:#d4af37;">' + esc(item.theme) + '</em>' : '';
+    pcHtml += '<div class="recommendation-content"><strong>' + esc(item.project) + '：</strong>' + esc(item.config) + themeStr + '</div>';
   });
   el('project-config-container').innerHTML = pcHtml;
 
