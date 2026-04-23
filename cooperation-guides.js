@@ -140,7 +140,7 @@ const cooperationGuides = {
       "他容易埋头，你帮他抬头看路——不迷失方向"
     ],
     conflicts: "你觉得他没格局时，想想没有他你的愿景可能只是空话；他觉得你画大饼时，提醒他你的愿景是在指引方向",
-    solution: "给他清晰的愿景，他会帮你实现：未来三年我们要做到 XX，具体怎么干你来规划",
+    solution: "给他清晰的愿景，他会帮你实现：未来我们要达成共同目标，具体怎么干你来规划",
     quote: "你负责低头拉车，我负责抬头看路"
   },
   "IRBD-ITCP": {
@@ -283,6 +283,23 @@ function generateCooperationGuide(code1, code2) {
   
   let type, advantages, conflicts, solution, quote;
   
+  // 维度擅长描述映射
+  const strengthMap = {
+    A: "理性分析", I: "直觉洞察",
+    R: "凝聚人心", T: "高效执行",
+    C: "争取利益", B: "把控风险",
+    D: "用数据说话", P: "优化流程"
+  };
+
+  function extractStrengths(code) {
+    const dims = [];
+    if (code[0] === 'A') dims.push('A'); else dims.push('I');
+    if (code[1] === 'R') dims.push('R'); else dims.push('T');
+    if (code[2] === 'C') dims.push('C'); else dims.push('B');
+    if (code[3] === 'D') dims.push('D'); else dims.push('P');
+    return dims.slice(0, 2).map(d => strengthMap[d]);
+  }
+
   if (complementScore >= 3) {
     type = "高度互补";
     advantages = [
@@ -291,7 +308,9 @@ function generateCooperationGuide(code1, code2) {
       "你们可以互相学习，取长补短"
     ];
     conflicts = "你们差异较大，初期可能需要磨合——但磨合好后会是非常强的组合";
-    solution = "尊重彼此的不同，发挥各自的优势：你擅长 XX，我擅长 XX，我们分工合作";
+    const yourStrengths = extractStrengths(code1).join("和");
+    const theirStrengths = extractStrengths(code2).join("和");
+    solution = "尊重彼此的不同，发挥各自的优势：你擅长" + yourStrengths + "，我擅长" + theirStrengths + "，我们分工合作";
     quote = "差异让我们更强";
   } else if (complementScore >= 2) {
     type = "互补合作";
