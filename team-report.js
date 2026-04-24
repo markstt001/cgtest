@@ -911,27 +911,46 @@ function matchCourses(courseLibrary, dim, members) {
   if(dim.C && dim.B) { if(dim.B/total < 0.3) weakDims.push('B'); if(dim.C/total < 0.3) weakDims.push('C'); }
   if(dim.D && dim.P) { if(dim.P/total < 0.3) weakDims.push('P'); if(dim.D/total < 0.3) weakDims.push('D'); }
 
+  // 团队缺失的风格（16 种风格中无人覆盖的）
+  var presentStyles = {};
+  members.forEach(function(m){ presentStyles[m.code.toUpperCase()] = true; });
+  var missingStyles = ALL_STYLES.filter(function(s){ return !presentStyles[s]; });
+
   var scored = (courseLibrary || []).map(function(c) {
     var matchCount = 0;
+    // 维度匹配（原有逻辑）
     (c.tags || []).forEach(function(t) {
       if(cap.missingCaps.indexOf(t) >= 0) matchCount += 10;
       if(weakDims.indexOf(t) >= 0) matchCount += 5;
+    });
+    // 风格匹配（新增逻辑）：课程 styleTags 中覆盖团队缺失风格的数量加分
+    (c.styleTags || []).forEach(function(s) {
+      if(missingStyles.indexOf(s) >= 0) matchCount += 8;
     });
     return { course: c, score: matchCount };
   }).sort(function(a,b){ return b.score - a.score; });
 
   return scored.map(function(s) {
     var c = s.course;
-    var matchText;
+    var parts = [];
+    // 维度匹配信息（原有逻辑）
     var matchedCaps = c.tags.filter(function(t){ return cap.missingCaps.indexOf(t)>=0; });
     var matchedDims = c.tags.filter(function(t){ return weakDims.indexOf(t)>=0; });
     if(matchedCaps.length > 0) {
-      matchText = '精准匹配团队「' + matchedCaps.join('、') + '」能力短板';
-    } else if(matchedDims.length > 0) {
-      matchText = '补齐团队「' + matchedDims.map(function(t){return DIM_LABEL_MAP[t]||t;}).join('、') + '」维度短板';
-    } else {
-      matchText = '全面提升团队综合能力';
+      parts.push('匹配能力短板「' + matchedCaps.join('、') + '」');
     }
+    if(matchedDims.length > 0) {
+      parts.push('补齐「' + matchedDims.map(function(t){return DIM_LABEL_MAP[t]||t;}).join('、') + '」维度短板');
+    }
+    // 风格匹配信息（新增逻辑）
+    var matchedStyles = (c.styleTags || []).filter(function(st){ return missingStyles.indexOf(st) >= 0; });
+    if(matchedStyles.length > 0) {
+      parts.push('适合缺失风格：' + matchedStyles.map(function(st){
+        var d = styleDefinitions[st];
+        return (d ? d.animal + d.name : st) + '(' + st + ')';
+      }).join('、'));
+    }
+    var matchText = parts.length > 0 ? parts.join('；') : '全面提升团队综合能力';
     return { name: c.name, teacher: '优链学堂 · 线下课', match: matchText, cta: c.cta, url: c.url };
   });
 }
